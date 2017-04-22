@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("YetAnotherFaviconDownloader")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Yet another favicon downloader for KeePass 2.x")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("YetAnotherFaviconDownloader")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCompany("Rafael Cossovan de França")]
+[assembly: AssemblyProduct("KeePass Plugin")]
+[assembly: AssemblyCopyright("Copyright ©  2017 Rafael Cossovan de França")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
