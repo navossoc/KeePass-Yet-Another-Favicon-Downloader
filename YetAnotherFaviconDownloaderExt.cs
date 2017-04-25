@@ -28,47 +28,56 @@ namespace YetAnotherFaviconDownloader
         {
             Log("Menu entry clicked");
 
-            var entry = m_host.MainWindow.GetSelectedEntry(true);
-            if (entry == null)
+            var entries = m_host.MainWindow.GetSelectedEntries();
+            if (entries == null)
             {
-                Log("No entry selected");
+                Log("No entries selected");
                 return;
             }
 
-            // Fields
-            var title = entry.Strings.ReadSafe("Title");
-            var url = entry.Strings.ReadSafe("URL");
+            // Custom icons that will be added to the database
+            var icons = new List<PwCustomIcon>(entries.Length);
 
-            Log("Downloading favicon for:\n" +
-                "Title: {0}\n" +
-                "URL: {1}", title, url);
-
-            WebClient wc = new WebClient();
-            try
+            foreach (var entry in entries)
             {
-                // Download
-                var data = wc.DownloadData(url + "favicon.ico");
-                Log("Icon downloaded with success");
+                // Fields
+                var title = entry.Strings.ReadSafe("Title");
+                var url = entry.Strings.ReadSafe("URL");
 
-                // Create icon
-                var uuid = new PwUuid(true);
-                var icon = new PwCustomIcon(uuid, data);
-                m_host.Database.CustomIcons.Add(icon);
+                Log("Downloading favicon for:\n" +
+                    "Title: {0}\n" +
+                    "URL: {1}", title, url);
 
-                // Associate with this entry
-                entry.CustomIconUuid = uuid;
+                WebClient wc = new WebClient();
+                try
+                {
+                    // Download
+                    var data = wc.DownloadData(url + "favicon.ico");
+                    Log("Icon downloaded with success");
 
-                // Save it
-                entry.Touch(true);
+                    // Create icon
+                    var uuid = new PwUuid(true);
+                    var icon = new PwCustomIcon(uuid, data);
+                    icons.Add(icon);
 
-                // Refresh icons
-                m_host.Database.UINeedsIconUpdate = true;
-                m_host.MainWindow.UpdateUI(false, null, false, null, true, null, true);
+                    // Associate with this entry
+                    entry.CustomIconUuid = uuid;
+
+                    // Save it
+                    entry.Touch(true);
+                }
+                catch (WebException)
+                {
+                    Log("Failed to download favicon");
+                }
             }
-            catch (WebException)
-            {
-                Log("Failed to download favicon");
-            }
+
+            // Add all icons to the database
+            m_host.Database.CustomIcons.AddRange(icons);
+
+            // Refresh icons
+            m_host.Database.UINeedsIconUpdate = true;
+            m_host.MainWindow.UpdateUI(false, null, false, null, true, null, true);
         }
 
         public override void Terminate()
