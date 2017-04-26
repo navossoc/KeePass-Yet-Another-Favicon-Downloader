@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FaviconDownloader.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="YetAnotherFaviconDownloaderExt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
