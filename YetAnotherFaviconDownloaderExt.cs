@@ -2,9 +2,7 @@
 using KeePassLib;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
-using System.Text;
 
 namespace YetAnotherFaviconDownloader
 {
@@ -16,7 +14,7 @@ namespace YetAnotherFaviconDownloader
         {
             m_host = host;
 
-            Log("Plugin Initialize");
+            Util.Log("Plugin Initialize");
 
             var entriesMenu = m_host.MainWindow.EntryContextMenu.Items;
             entriesMenu.Add("Download favicon", null, MenuEntry_Click);
@@ -26,12 +24,12 @@ namespace YetAnotherFaviconDownloader
 
         private void MenuEntry_Click(object sender, EventArgs e)
         {
-            Log("Menu entry clicked");
+            Util.Log("Menu entry clicked");
 
             var entries = m_host.MainWindow.GetSelectedEntries();
             if (entries == null)
             {
-                Log("No entries selected");
+                Util.Log("No entries selected");
                 return;
             }
 
@@ -44,7 +42,7 @@ namespace YetAnotherFaviconDownloader
                 var title = entry.Strings.ReadSafe("Title");
                 var url = entry.Strings.ReadSafe("URL");
 
-                Log("Downloading favicon for:\n" +
+                Util.Log("Downloading favicon for:\n" +
                     "Title: {0}\n" +
                     "URL: {1}", title, url);
 
@@ -53,7 +51,7 @@ namespace YetAnotherFaviconDownloader
                 {
                     // Download
                     var data = wc.DownloadData(url + "favicon.ico");
-                    Log("Icon downloaded with success");
+                    Util.Log("Icon downloaded with success");
 
                     // Create icon
                     var uuid = new PwUuid(true);
@@ -68,7 +66,7 @@ namespace YetAnotherFaviconDownloader
                 }
                 catch (WebException)
                 {
-                    Log("Failed to download favicon");
+                    Util.Log("Failed to download favicon");
                 }
             }
 
@@ -82,13 +80,8 @@ namespace YetAnotherFaviconDownloader
 
         public override void Terminate()
         {
-            Log("Plugin Terminate");
+            Util.Log("Plugin Terminate");
             return;
-        }
-
-        private void Log(string format, params object[] args)
-        {
-            Debug.Print("[YAFD] " + format, args);
         }
     }
 }
