@@ -19,13 +19,21 @@ namespace YetAnotherFaviconDownloader
 
         private class ProgressInfo
         {
-            public int Success { get; set; }
-            public int NotFound { get; set; }
-            public int Error { get; set; }
-            public int Total { get; set; }
-            public float Percent => ((Success + NotFound + Error) * 100f) / Total;
+            public int Success;
+            public int NotFound;
+            public int Error;
+            public int Current;
+
+            public int Remaining => (Total - Current);
+            public int Total { get; private set; }
+
+            public float Percent => (Current * 100f) / Total;
+
+            public ProgressInfo(int total)
+            {
+                Total = total;
+            }
         }
-        private readonly ProgressInfo progress;
 
         public FaviconDownloader(IPluginHost host)
         {
@@ -47,9 +55,6 @@ namespace YetAnotherFaviconDownloader
             // Status Progress Form
             Form fStatusDialog;
             logger = StatusUtil.CreateStatusDialog(pluginHost.MainWindow, out fStatusDialog, "Yet Another Favicon Downloader", "Downloading favicons...", true, false);
-
-            // Progress information
-            progress = new ProgressInfo();
         }
 
         public void Run(PwEntry[] entries)
@@ -62,8 +67,8 @@ namespace YetAnotherFaviconDownloader
             var worker = sender as BackgroundWorker;
             var entries = e.Argument as PwEntry[];
 
-            // Start process
-            progress.Total = entries.Length;
+            // Progress information
+            var progress = new ProgressInfo(entries.Length);
 
             // Custom icons that will be added to the database
             var icons = new List<PwCustomIcon>(entries.Length);
@@ -78,51 +83,55 @@ namespace YetAnotherFaviconDownloader
                 }
 
                 // Fields
-                var title = entry.Strings.ReadSafe("Title");
                 var url = entry.Strings.ReadSafe("URL");
 
                 Util.Log("Downloading: {0}", url);
 
-                WebClient wc = new WebClient();
-                try
+                using (var wc = new WebClient())
                 {
-                    // Download
-                    var data = wc.DownloadData(url + "favicon.ico");
-                    Util.Log("Icon downloaded with success");
-
-                    // Create icon
-                    var uuid = new PwUuid(true);
-                    var icon = new PwCustomIcon(uuid, data);
-                    icons.Add(icon);
-
-                    // Associate with this entry
-                    entry.CustomIconUuid = uuid;
-
-                    // Save it
-                    entry.Touch(true);
-
-                    // Icon downloaded with success
-                    progress.Success++;
-                }
-                catch (WebException ex)
-                {
-                    Util.Log("Failed to download favicon");
-
-                    var response = ex.Response as HttpWebResponse;
-                    if (response != null && response.StatusCode == HttpStatusCode.NotFound)
+                    try
                     {
-                        // Can't find an icon
-                        progress.NotFound++;
+                        // Download
+                        var data = wc.DownloadData(url + "favicon.ico");
+                        Util.Log("Icon downloaded with success");
+
+                        // Create icon
+                        var uuid = new PwUuid(true);
+                        var icon = new PwCustomIcon(uuid, data);
+                        icons.Add(icon);
+
+                        // Associate with this entry
+                        entry.CustomIconUuid = uuid;
+
+                        // Save it
+                        entry.Touch(true, false);
+
+                        // Icon downloaded with success
+                        progress.Success++;
                     }
-                    else
+                    catch (WebException ex)
                     {
-                        // Some other error (network, etc)
-                        progress.Error++;
+                        Util.Log("Failed to download favicon");
+
+                        var response = ex.Response as HttpWebResponse;
+                        if (response?.StatusCode == HttpStatusCode.NotFound)
+                        {
+                            // Can't find an icon
+                            progress.NotFound++;
+                        }
+                        else
+                        {
+                            // Some other error (network, etc)
+                            progress.Error++;
+                        }
+                    }
+                    finally
+                    {
+                        // Progress
+                        progress.Current++;
+                        worker.ReportProgress((int)progress.Percent, progress);
                     }
                 }
-
-                // Progress
-                worker.ReportProgress((int)progress.Percent, progress);
             }
 
             // Add all icons to the database
@@ -141,7 +150,7 @@ namespace YetAnotherFaviconDownloader
             logger.SetProgress((uint)e.ProgressPercentage);
 
             var state = e.UserState as ProgressInfo;
-            var status = String.Format("Downloading favicons... Success: {0} / Not Found: {1} / Error: {2}", state.Success, state.NotFound, state.Error);
+            var status = String.Format("Success: {0} / Not Found: {1} / Error: {2} / Remaining: {3}", state.Success, state.NotFound, state.Error, state.Remaining);
             logger.SetText(status, LogStatusType.Info);
         }
 
