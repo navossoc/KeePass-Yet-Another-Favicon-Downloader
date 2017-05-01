@@ -23,15 +23,14 @@ namespace YetAnotherFaviconDownloader
             public int NotFound;
             public int Error;
             public int Current;
+            public int Remaining;
 
-            public int Remaining => (Total - Current);
             public int Total { get; private set; }
-
-            public float Percent => (Current * 100f) / Total;
+            public float Percent => ((Total - Remaining) * 100f) / Total;
 
             public ProgressInfo(int total)
             {
-                Total = total;
+                Total = Remaining = total;
             }
         }
 
@@ -71,7 +70,7 @@ namespace YetAnotherFaviconDownloader
             var progress = new ProgressInfo(entries.Length);
 
             // Custom icons that will be added to the database
-            var icons = new List<PwCustomIcon>(entries.Length);
+            var icons = new PwCustomIcon[entries.Length];
 
             foreach (var entry in entries)
             {
@@ -81,6 +80,8 @@ namespace YetAnotherFaviconDownloader
                     e.Cancel = true;
                     break;
                 }
+
+                var i = Interlocked.Increment(ref progress.Current) - 1;
 
                 // Fields
                 var url = entry.Strings.ReadSafe("URL");
@@ -98,7 +99,9 @@ namespace YetAnotherFaviconDownloader
                         // Create icon
                         var uuid = new PwUuid(true);
                         var icon = new PwCustomIcon(uuid, data);
-                        icons.Add(icon);
+
+                        // Add icon
+                        icons[i] = icon;
 
                         // Associate with this entry
                         entry.CustomIconUuid = uuid;
@@ -107,7 +110,7 @@ namespace YetAnotherFaviconDownloader
                         entry.Touch(true, false);
 
                         // Icon downloaded with success
-                        progress.Success++;
+                        Interlocked.Increment(ref progress.Success);
                     }
                     catch (WebException ex)
                     {
@@ -117,25 +120,26 @@ namespace YetAnotherFaviconDownloader
                         if (response?.StatusCode == HttpStatusCode.NotFound)
                         {
                             // Can't find an icon
-                            progress.NotFound++;
+                            Interlocked.Increment(ref progress.NotFound);
                         }
                         else
                         {
                             // Some other error (network, etc)
-                            progress.Error++;
+                            Interlocked.Increment(ref progress.Error);
                         }
                     }
-                    finally
-                    {
-                        // Progress
-                        progress.Current++;
-                        worker.ReportProgress((int)progress.Percent, progress);
-                    }
                 }
+
+                // Progress
+                Interlocked.Decrement(ref progress.Remaining);
+                worker.ReportProgress((int)progress.Percent, progress);
             }
 
             // Add all icons to the database
             pluginHost.Database.CustomIcons.AddRange(icons);
+
+            // Remove invalid entries
+            pluginHost.Database.CustomIcons.RemoveAll(x => x == null);
 
             // Refresh icons
             pluginHost.Database.UINeedsIconUpdate = true;
