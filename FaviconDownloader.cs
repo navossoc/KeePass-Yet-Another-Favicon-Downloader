@@ -40,15 +40,10 @@ namespace YetAnotherFaviconDownloader
             pluginHost = host;
 
             // Set up BackgroundWorker
-            bgWorker = new BackgroundWorker()
-            {
-                WorkerReportsProgress = true,
-                WorkerSupportsCancellation = true
-            };
+            bgWorker = new BackgroundWorker();
 
             // BackgroundWorker Events
             bgWorker.DoWork += BgWorker_DoWork;
-            bgWorker.ProgressChanged += BgWorker_ProgressChanged;
             bgWorker.RunWorkerCompleted += BgWorker_RunWorkerCompleted;
 
             // Status Progress Form
@@ -72,68 +67,87 @@ namespace YetAnotherFaviconDownloader
             // Custom icons that will be added to the database
             var icons = new PwCustomIcon[entries.Length];
 
-            foreach (var entry in entries)
+            using (var waiter = new ManualResetEvent(false))
             {
-                // Checks whether the user pressed the cancel button or the close button
-                if (worker.CancellationPending || !logger.ContinueWork())
+                foreach (var entry in entries)
                 {
-                    e.Cancel = true;
-                    break;
-                }
-
-                var i = Interlocked.Increment(ref progress.Current) - 1;
-
-                // Fields
-                var url = entry.Strings.ReadSafe("URL");
-
-                Util.Log("Downloading: {0}", url);
-
-                using (var wc = new WebClient())
-                {
-                    try
+                    ThreadPool.QueueUserWorkItem(notUsed =>
                     {
-                        // Download
-                        var data = wc.DownloadData(url + "favicon.ico");
-                        Util.Log("Icon downloaded with success");
-
-                        // Create icon
-                        var uuid = new PwUuid(true);
-                        var icon = new PwCustomIcon(uuid, data);
-
-                        // Add icon
-                        icons[i] = icon;
-
-                        // Associate with this entry
-                        entry.CustomIconUuid = uuid;
-
-                        // Save it
-                        entry.Touch(true, false);
-
-                        // Icon downloaded with success
-                        Interlocked.Increment(ref progress.Success);
-                    }
-                    catch (WebException ex)
-                    {
-                        Util.Log("Failed to download favicon");
-
-                        var response = ex.Response as HttpWebResponse;
-                        if (response?.StatusCode == HttpStatusCode.NotFound)
+                        // Checks whether the user pressed the cancel button or the close button
+                        if (!logger.ContinueWork())
                         {
-                            // Can't find an icon
-                            Interlocked.Increment(ref progress.NotFound);
+                            e.Cancel = true;
                         }
                         else
                         {
-                            // Some other error (network, etc)
-                            Interlocked.Increment(ref progress.Error);
+                            var i = Interlocked.Increment(ref progress.Current) - 1;
+
+                            // Fields
+                            var url = entry.Strings.ReadSafe("URL");
+
+                            Util.Log("Downloading: {0}", url);
+
+                            using (var wc = new WebClient())
+                            {
+                                try
+                                {
+                                    // Download
+                                    var data = wc.DownloadData(url + "favicon.ico");
+                                    Util.Log("Icon downloaded with success");
+
+                                    // Create icon
+                                    var uuid = new PwUuid(true);
+                                    var icon = new PwCustomIcon(uuid, data);
+
+                                    // Add icon
+                                    icons[i] = icon;
+
+                                    // Associate with this entry
+                                    entry.CustomIconUuid = uuid;
+
+                                    // Save it
+                                    entry.Touch(true, false);
+
+                                    // Icon downloaded with success
+                                    Interlocked.Increment(ref progress.Success);
+                                }
+                                catch (WebException ex)
+                                {
+                                    Util.Log("Failed to download favicon");
+
+                                    var response = ex.Response as HttpWebResponse;
+                                    if (response?.StatusCode == HttpStatusCode.NotFound)
+                                    {
+                                        // Can't find an icon
+                                        Interlocked.Increment(ref progress.NotFound);
+                                    }
+                                    else
+                                    {
+                                        // Some other error (network, etc)
+                                        Interlocked.Increment(ref progress.Error);
+                                    }
+                                }
+                            }
                         }
-                    }
+
+                        // Notifies that all downloads are finished
+                        if (Interlocked.Decrement(ref progress.Remaining) == 0)
+                        {
+                            waiter.Set();
+                        }
+                    });
+
                 }
 
-                // Progress
-                Interlocked.Decrement(ref progress.Remaining);
-                worker.ReportProgress((int)progress.Percent, progress);
+                // Wait until the downloads are finished
+                do
+                {
+                    ReportProgress(progress);
+                } while (!waiter.WaitOne(100));
             }
+
+            // Progress 100%
+            ReportProgress(progress);
 
             // Add all icons to the database
             pluginHost.Database.CustomIcons.AddRange(icons);
@@ -148,14 +162,10 @@ namespace YetAnotherFaviconDownloader
             Thread.Sleep(3000);
         }
 
-        private void BgWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void ReportProgress(ProgressInfo progress)
         {
-            Util.Log("Progress: {0}%", e.ProgressPercentage);
-            logger.SetProgress((uint)e.ProgressPercentage);
-
-            var state = e.UserState as ProgressInfo;
-            var status = String.Format("Success: {0} / Not Found: {1} / Error: {2} / Remaining: {3}", state.Success, state.NotFound, state.Error, state.Remaining);
-            logger.SetText(status, LogStatusType.Info);
+            logger.SetProgress((uint)progress.Percent);
+            logger.SetText(String.Format("Success: {0} / Not Found: {1} / Error: {2} / Remaining: {3}", progress.Success, progress.NotFound, progress.Error, progress.Remaining), LogStatusType.Info);
         }
 
         private void BgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
