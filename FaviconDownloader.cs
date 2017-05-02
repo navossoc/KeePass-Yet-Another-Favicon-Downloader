@@ -89,6 +89,9 @@ namespace YetAnotherFaviconDownloader
 
                             using (var wc = new WebClient())
                             {
+                                // Set up proxy information
+                                wc.Proxy = Util.GetKeePassProxy();
+
                                 try
                                 {
                                     // Download
