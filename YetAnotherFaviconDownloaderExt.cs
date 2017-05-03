@@ -6,6 +6,8 @@ namespace YetAnotherFaviconDownloader
 {
     public class YetAnotherFaviconDownloaderExt : Plugin
     {
+        public override string UpdateUrl => "https://raw.githubusercontent.com/navossoc/KeePass-Yet-Another-Favicon-Downloader/master/VERSION";
+
         private IPluginHost m_host = null;
 
         public override bool Initialize(IPluginHost host)
