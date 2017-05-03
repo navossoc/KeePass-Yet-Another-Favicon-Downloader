@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace YetAnotherFaviconDownloader
 {
-    class FaviconDownloader
+    public sealed class FaviconDownloader
     {
         private readonly IPluginHost pluginHost;
         private readonly BackgroundWorker bgWorker;

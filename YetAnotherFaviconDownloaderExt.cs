@@ -4,7 +4,7 @@ using System;
 
 namespace YetAnotherFaviconDownloader
 {
-    public class YetAnotherFaviconDownloaderExt : Plugin
+    public sealed class YetAnotherFaviconDownloaderExt : Plugin
     {
         public override string UpdateUrl
         {

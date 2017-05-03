@@ -31,7 +31,9 @@ namespace YetAnotherFaviconDownloader
 
         public static void Log(string format, params object[] args)
         {
+#if DEBUG
             Debug.Print("[YAFD] " + format, args);
+#endif
         }
     }
 }
