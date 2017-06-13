@@ -14,9 +14,17 @@ namespace YetAnotherFaviconDownloader
         public static IWebProxy GetKeePassProxy()
         {
             var parameters = new object[] { null };
-            var result = (bool)typeof(KeePassLib.Serialization.IOConnection)
-                ?.GetMethod("GetWebProxy", BindingFlags.Static | BindingFlags.NonPublic)
-                ?.Invoke(null, parameters);
+            bool result = false;
+
+            var type = typeof(KeePassLib.Serialization.IOConnection);
+            if (type != null)
+            {
+                var methodInfo = type.GetMethod("GetWebProxy", BindingFlags.Static | BindingFlags.NonPublic);
+                if (methodInfo != null)
+                {
+                    result = (bool)methodInfo.Invoke(null, parameters);
+                }
+            }
 
             return parameters[0] as IWebProxy;
         }

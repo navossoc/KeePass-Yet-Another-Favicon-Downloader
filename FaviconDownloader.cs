@@ -26,7 +26,10 @@ namespace YetAnotherFaviconDownloader
             public int Remaining;
 
             public int Total { get; private set; }
-            public float Percent => ((Total - Remaining) * 100f) / Total;
+            public float Percent
+            {
+                get { return ((Total - Remaining) * 100f) / Total; }
+            }
 
             public ProgressInfo(int total)
             {
@@ -119,7 +122,7 @@ namespace YetAnotherFaviconDownloader
                                     Util.Log("Failed to download favicon");
 
                                     var response = ex.Response as HttpWebResponse;
-                                    if (response?.StatusCode == HttpStatusCode.NotFound)
+                                    if (response != null && response.StatusCode == HttpStatusCode.NotFound)
                                     {
                                         // Can't find an icon
                                         Interlocked.Increment(ref progress.NotFound);
