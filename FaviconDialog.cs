@@ -3,9 +3,7 @@ using KeePass.UI;
 using KeePassLib;
 using KeePassLib.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Net;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -90,15 +88,12 @@ namespace YetAnotherFaviconDownloader
 
                             Util.Log("Downloading: {0}", url);
 
-                            using (var wc = new WebClient())
+                            using (var fd = new FaviconDownloader())
                             {
-                                // Set up proxy information
-                                wc.Proxy = Util.GetKeePassProxy();
-
                                 try
                                 {
-                                    // Download
-                                    var data = wc.DownloadData(url + "favicon.ico");
+                                    // Download favicon
+                                    var data = fd.GetIcon(url);
                                     Util.Log("Icon downloaded with success");
 
                                     // Create icon
@@ -117,12 +112,11 @@ namespace YetAnotherFaviconDownloader
                                     // Icon downloaded with success
                                     Interlocked.Increment(ref progress.Success);
                                 }
-                                catch (WebException ex)
+                                catch (FaviconDownloaderException ex)
                                 {
                                     Util.Log("Failed to download favicon");
 
-                                    var response = ex.Response as HttpWebResponse;
-                                    if (response != null && response.StatusCode == HttpStatusCode.NotFound)
+                                    if (ex.Status == FaviconDownloaderExceptionStatus.NotFound)
                                     {
                                         // Can't find an icon
                                         Interlocked.Increment(ref progress.NotFound);
