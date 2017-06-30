@@ -41,7 +41,7 @@ namespace YetAnotherFaviconDownloader
             }
 
             // Run all the work in a new thread
-            var downloader = new FaviconDownloader(m_host);
+            var downloader = new FaviconDialog(m_host);
             downloader.Run(entries);
         }
 

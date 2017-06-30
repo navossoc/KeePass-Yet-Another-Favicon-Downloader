@@ -41,7 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Dictionary.cs" />
-    <Compile Include="FaviconDownloader.cs" />
+    <Compile Include="FaviconDialog.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="YetAnotherFaviconDownloaderExt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
