@@ -96,8 +96,11 @@ namespace YetAnotherFaviconDownloader
                                     var data = fd.GetIcon(url);
                                     Util.Log("Icon downloaded with success");
 
+                                    // Hash icon data (avoid duplicates)
+                                    var hash = Util.HashData(data);
+
                                     // Create icon
-                                    var uuid = new PwUuid(true);
+                                    var uuid = new PwUuid(hash);
                                     var icon = new PwCustomIcon(uuid, data);
 
                                     // Add icon

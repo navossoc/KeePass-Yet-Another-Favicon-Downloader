@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text;
+using System.Security.Cryptography;
 
 namespace YetAnotherFaviconDownloader
 {
@@ -27,6 +29,26 @@ namespace YetAnotherFaviconDownloader
             }
 
             return parameters[0] as IWebProxy;
+        }
+
+        public static byte[] HashData(byte[] data)
+        {
+            using (var md5 = MD5.Create())
+            {
+                return md5.ComputeHash(data);
+            }
+        }
+
+        public static string ToHex(byte[] hash)
+        {
+            var sb = new StringBuilder(hash.Length * 2);
+
+            for (int i = 0; i < hash.Length; i++)
+            {
+                sb.Append(hash[i].ToString("x2"));
+            }
+
+            return sb.ToString();
         }
 
         public static void Log(string format, params object[] args)
