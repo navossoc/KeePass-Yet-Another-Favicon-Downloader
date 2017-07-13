@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace YetAnotherFaviconDownloader
 {
+    [System.ComponentModel.DesignerCategory("")]
     public sealed class FaviconDownloader : WebClient
     {
         public FaviconDownloader()
