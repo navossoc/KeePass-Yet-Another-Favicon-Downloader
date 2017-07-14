@@ -70,12 +70,6 @@ namespace YetAnotherFaviconDownloader
                     // Download file
                     var data = DownloadAsset(link);
 
-                    // Invalid data
-                    if (data == null)
-                    {
-                        continue;
-                    }
-
                     // Check if the data is a valid image
                     if (IsValidImage(data))
                     {
@@ -124,7 +118,7 @@ namespace YetAnotherFaviconDownloader
             return request;
         }
 
-        public byte[] DownloadAsset(Uri address)
+        private byte[] DownloadAsset(Uri address)
         {
             // Data URI scheme
             if (address.Scheme == "data")
@@ -243,7 +237,7 @@ namespace YetAnotherFaviconDownloader
                 {
                     // Extract href attribute value
                     var hrefHtml = hrefAttribute.Match(linkHtml);
-                    if (hrefHtml.Length > 1)
+                    if (hrefHtml.Success)
                     {
                         var href = hrefHtml.Groups["url"].Value;
 
@@ -270,6 +264,12 @@ namespace YetAnotherFaviconDownloader
 
         private bool IsValidImage(byte[] data)
         {
+            // Invalid data
+            if (data == null)
+            {
+                return false;
+            }
+
             try
             {
                 var image = GfxUtil.LoadImage(data);
