@@ -10,9 +10,36 @@ namespace YetAnotherFaviconDownloader
     [System.ComponentModel.DesignerCategory("")]
     public sealed class FaviconDownloader : WebClient
     {
-        public FaviconDownloader()
+        // Regular expressions
+        private static readonly Regex dataSchema, httpSchema;
+        private static readonly Regex headTag, commentTag, scriptStyleTag;
+        private static readonly Regex linkTags, relAttribute, hrefAttribute;
+
+        static FaviconDownloader()
         {
-            // TODO: assign proxy only one time per "batch"
+            // Data URI schema
+            dataSchema = new Regex(@"data:(?<mediatype>.*?)(;(?<base64>.+?))?,(?<data>.+)", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+
+            // HTTP URI schema
+            httpSchema = new Regex(@"^http(s)?://.+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+            // <head> tag
+            headTag = new Regex(@"<head\b.*?>.*?</head>", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline);
+
+            // <!-- --> comment tags
+            commentTag = new Regex(@"<!--.*?-->", RegexOptions.Compiled | RegexOptions.Singleline);
+
+            // <script> or <style> tags
+            scriptStyleTag = new Regex(@"<(script|style)\b.*?>.*?</\1>", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline);
+
+            // <link> tags
+            linkTags = new Regex(@"<link\b.*?>", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline);
+
+            // <link> tags with rel attribute
+            relAttribute = new Regex(@"rel\s*=\s*(icon\b|(?<q>'|"")\s*(shortcut\s*\b)?icon\b\s*\k<q>)", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.Singleline);
+
+            // <link> tags with href attribute
+            hrefAttribute = new Regex(@"href\s*=\s*((?<q>'|"")(?<url>.*?)(\k<q>|>)|(?<url>.*?)(\s+|>))", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.Singleline);
         }
 
         public byte[] GetIcon(string url)
@@ -94,7 +121,7 @@ namespace YetAnotherFaviconDownloader
                 var uri = address.ToString();
 
                 // data:[<mediatype>][;base64],<data>
-                var match = Regex.Match(uri, @"data:(?<mediatype>.*?)(;(?<base64>.+?))?,(?<data>.+)", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+                var match = dataSchema.Match(uri);
                 if (match.Success)
                 {
                     var data = match.Groups["data"].Value;
@@ -117,7 +144,7 @@ namespace YetAnotherFaviconDownloader
 
         private bool IsValidURL(string url)
         {
-            if (Regex.IsMatch(url, @"^http(s)?://.+", RegexOptions.IgnoreCase | RegexOptions.Compiled))
+            if (httpSchema.IsMatch(url))
             {
                 Uri result;
                 return Uri.TryCreate(url, UriKind.Absolute, out result);
@@ -138,21 +165,18 @@ namespace YetAnotherFaviconDownloader
 
         private string StripPage(string html)
         {
-            // This should be enough for most of cases
-            const RegexOptions regexOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline;
-
             // Extract <head> tag
-            var match = Regex.Match(html, @"<head\b.*?>.*?</head>", regexOptions);
+            var match = headTag.Match(html);
             if (match.Success)
             {
                 // <head> content
                 html = match.Value;
 
                 // Remove HTML comments
-                html = Regex.Replace(html, @"<!--.*?-->", string.Empty, regexOptions);
+                html = commentTag.Replace(html, string.Empty);
 
                 // Remove some unnecessary tags from the page
-                html = Regex.Replace(html, @"<(script|style)\b.*?>.*?</\1>", string.Empty, regexOptions);
+                html = scriptStyleTag.Replace(html, string.Empty);
             }
 
             return html;
@@ -175,17 +199,6 @@ namespace YetAnotherFaviconDownloader
         {
             // Since we don't have any collection that accepts unique items on .NET 2.0
             var urls = new Dictionary<Uri, bool>();
-
-            const RegexOptions regexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.Singleline;
-
-            // Regex for <link> tags
-            var linkTags = new Regex(@"<link\b.*?>", regexOptions);
-
-            // Regex for <link> tags with rel attribute
-            var relAttribute = new Regex(@"rel\s*=\s*(icon\b|(?<q>'|"")\s*(shortcut\s*\b)?icon\b\s*\k<q>)", regexOptions);
-
-            // Regex for <link> tags with href attribute
-            var hrefAttribute = new Regex(@"href\s*=\s*((?<q>'|"")(?<url>.*?)(\k<q>|>)|(?<url>.*?)(\s+|>))", regexOptions);
 
             Uri faviconUrl;
 
