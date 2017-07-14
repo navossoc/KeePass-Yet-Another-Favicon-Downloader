@@ -1,6 +1,7 @@
 ﻿using KeePass.Plugins;
 using KeePassLib;
 using System;
+using System.Collections.Generic;
 
 namespace YetAnotherFaviconDownloader
 {
@@ -37,7 +38,20 @@ namespace YetAnotherFaviconDownloader
             if (entries == null)
             {
                 Util.Log("No entries selected");
+
+#if DEBUG
+                // Download the entire group if there are no entries selected
+                var group = m_host.MainWindow.GetSelectedGroup();
+                if (group == null)
+                {
+                    return;
+                }
+
+                // Convert PwObjectList<PwEntry> to PwEntry[]
+                entries = new List<PwEntry>(group.GetEntries(true)).ToArray();
+#else
                 return;
+#endif
             }
 
             // Run all the work in a new thread
