@@ -50,6 +50,9 @@ namespace YetAnotherFaviconDownloader
             // Status Progress Form
             Form fStatusDialog;
             logger = StatusUtil.CreateStatusDialog(pluginHost.MainWindow, out fStatusDialog, "Yet Another Favicon Downloader", "Downloading favicons...", true, false);
+
+            // Block UI
+            pluginHost.MainWindow.UIBlockInteraction(true);
         }
 
         public void Run(PwEntry[] entries)
@@ -188,6 +191,9 @@ namespace YetAnotherFaviconDownloader
             {
                 Util.Log("Done");
             }
+
+            // Unblock UI
+            pluginHost.MainWindow.UIBlockInteraction(false);
 
             // Refresh icons
             pluginHost.MainWindow.UpdateUI(false, null, false, null, true, null, true);
