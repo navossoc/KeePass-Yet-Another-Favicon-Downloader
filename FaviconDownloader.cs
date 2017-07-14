@@ -10,6 +10,9 @@ namespace YetAnotherFaviconDownloader
     [System.ComponentModel.DesignerCategory("")]
     public sealed class FaviconDownloader : WebClient
     {
+        // Proxy
+        public static new IWebProxy Proxy { get; set; }
+
         // Regular expressions
         private static readonly Regex dataSchema, httpSchema;
         private static readonly Regex headTag, commentTag, scriptStyleTag;
@@ -98,7 +101,7 @@ namespace YetAnotherFaviconDownloader
             var request = base.GetWebRequest(address) as HttpWebRequest;
 
             // Set up proxy information
-            request.Proxy = Util.GetKeePassProxy();
+            request.Proxy = Proxy;
 
             // Set up timeout for 20 seconds
             request.Timeout = 20000;

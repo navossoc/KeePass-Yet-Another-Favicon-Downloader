@@ -68,6 +68,9 @@ namespace YetAnotherFaviconDownloader
             // Custom icons that will be added to the database
             var icons = new PwCustomIcon[entries.Length];
 
+            // Set up proxy information for all WebClients
+            FaviconDownloader.Proxy = Util.GetKeePassProxy();
+
             using (var waiter = new ManualResetEvent(false))
             {
                 foreach (var entry in entries)
