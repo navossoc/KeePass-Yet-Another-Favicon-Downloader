@@ -12,6 +12,8 @@ namespace YetAnotherFaviconDownloader
     {
         // Proxy
         public static new IWebProxy Proxy { get; set; }
+        // User Agent
+        private static readonly string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36";
 
         // Regular expressions
         private static readonly Regex dataSchema, httpSchema;
@@ -112,6 +114,9 @@ namespace YetAnotherFaviconDownloader
 
             // Sets the cookies associated with the request (security issue?)
             request.CookieContainer = new CookieContainer();
+
+            // Sets a fake user agent
+            request.UserAgent = userAgent;
 
             return request;
         }
