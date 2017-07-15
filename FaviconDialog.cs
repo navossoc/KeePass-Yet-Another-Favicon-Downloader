@@ -158,9 +158,15 @@ namespace YetAnotherFaviconDownloader
                 }
 
                 // Wait until the downloads are finished
+                int lastValue = 0;
                 do
                 {
-                    ReportProgress(progress);
+                    // Update progress only when needed
+                    if (lastValue != progress.Remaining)
+                    {
+                        ReportProgress(progress);
+                        lastValue = progress.Remaining;
+                    }
                 } while (!waiter.WaitOne(100));
             }
 

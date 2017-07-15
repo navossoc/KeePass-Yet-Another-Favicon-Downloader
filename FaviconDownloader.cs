@@ -57,10 +57,12 @@ namespace YetAnotherFaviconDownloader
 
             try
             {
+                var address = new Uri(url);
+
                 // Download
-                var page = DownloadPage(url);
+                var page = DownloadPage(address);
                 var head = StripPage(page);
-                var links = GetIconsUrl(new Uri(url), head);
+                var links = GetIconsUrl(address, head);
 
                 // Try to find a valid image
                 foreach (var link in links)
@@ -173,7 +175,7 @@ namespace YetAnotherFaviconDownloader
             return false;
         }
 
-        private string DownloadPage(string address)
+        private string DownloadPage(Uri address)
         {
             // TODO: handle encoding issues
             var html = DownloadString(address);
@@ -233,7 +235,7 @@ namespace YetAnotherFaviconDownloader
             Uri faviconUrl;
 
             // Loops through each <link> tag
-            foreach (var linkTag in linkTags.Matches(html))
+            foreach (Match linkTag in linkTags.Matches(html))
             {
                 // Checks if it has the rel icon attribute
                 var linkHtml = linkTag.ToString();
