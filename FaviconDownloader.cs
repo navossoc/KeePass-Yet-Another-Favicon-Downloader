@@ -105,8 +105,9 @@ namespace YetAnotherFaviconDownloader
             // Set up proxy information
             request.Proxy = Proxy;
 
-            // Set up timeout for 20 seconds
-            request.Timeout = 20000;
+            // Set up timeout values (1/5 of the default values)
+            request.Timeout = 20 * 1000;
+            request.ReadWriteTimeout = 60 * 1000;
 
             // Follow redirection responses with an HTTP status code from 300 to 399
             request.AllowAutoRedirect = true;
