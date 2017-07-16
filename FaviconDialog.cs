@@ -164,7 +164,7 @@ namespace YetAnotherFaviconDownloader
             // Remove invalid entries
             pluginHost.Database.CustomIcons.RemoveAll(x => x == null);
 
-            // Refresh icons
+            // Refresh icons on database
             pluginHost.Database.UINeedsIconUpdate = true;
 
             // Waits long enough until we can see the output
@@ -196,7 +196,8 @@ namespace YetAnotherFaviconDownloader
             pluginHost.MainWindow.UIBlockInteraction(false);
 
             // Refresh icons
-            pluginHost.MainWindow.UpdateUI(false, null, false, null, true, null, true);
+            pluginHost.MainWindow.RefreshEntriesList();
+            pluginHost.MainWindow.UpdateUI(false, null, false, null, false, null, true);
 
             logger.EndLogging();
         }
