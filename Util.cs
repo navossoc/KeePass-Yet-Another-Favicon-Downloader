@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using System.Security.Cryptography;
+using System.Collections.Generic;
 
 namespace YetAnotherFaviconDownloader
 {
@@ -37,6 +38,36 @@ namespace YetAnotherFaviconDownloader
             {
                 return md5.ComputeHash(data);
             }
+        }
+
+        public static List<T> RemoveDuplicates<T>(List<T> source)
+        {
+            var set = new Dictionary<T, object>();
+            var result = new List<T>(source.Count);
+            var hasNull = false;
+
+            for (var i = 0; i < source.Count; i++)
+            {
+                var item = source[i];
+                if (item == null)
+                {
+                    if (!hasNull)
+                    {
+                        hasNull = true;
+                        result.Add(item);
+                    }
+                }
+                else
+                {
+                    if (!set.ContainsKey(item))
+                    {
+                        set.Add(item, null);
+                        result.Add(item);
+                    }
+                }
+            }
+
+            return result;
         }
 
         public static string ToHex(byte[] hash)

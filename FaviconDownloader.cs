@@ -206,8 +206,8 @@ namespace YetAnotherFaviconDownloader
 
         private IEnumerable<Uri> GetIconsUrl(Uri entryUrl, string html)
         {
-            // Since we don't have any collection that accepts unique items on .NET 2.0
-            var urls = new Dictionary<Uri, bool>();
+            // List of possible icons
+            var urls = new List<Uri>();
 
             Uri faviconUrl;
 
@@ -227,7 +227,7 @@ namespace YetAnotherFaviconDownloader
                         // Make a valid URL
                         if (NormalizeHref(entryUrl, href, out faviconUrl))
                         {
-                            urls.TryAdd(faviconUrl, false);
+                            urls.Add(faviconUrl);
                         }
                     }
                 }
@@ -236,10 +236,13 @@ namespace YetAnotherFaviconDownloader
             // Fallback: default location
             if (Uri.TryCreate(entryUrl, "/favicon.ico", out faviconUrl))
             {
-                urls.TryAdd(faviconUrl, false);
+                urls.Add(faviconUrl);
             }
 
-            return urls.Keys;
+            // Since there is no collection that only accepts unique items
+            urls = Util.RemoveDuplicates(urls);
+
+            return urls;
         }
 
         private bool IsValidImage(byte[] data)
