@@ -105,9 +105,9 @@ namespace YetAnotherFaviconDownloader
                                     // Hash icon data (avoid duplicates)
                                     var hash = Util.HashData(data);
 
-                                    // Create icon
+                                    // Creates an icon only if your UUID does not exist
                                     var uuid = new PwUuid(hash);
-                                    var icon = new PwCustomIcon(uuid, data);
+                                    var icon = pluginHost.Database.CustomIcons.Find(x => x.Uuid.Equals(uuid)) ?? new PwCustomIcon(uuid, data);
 
                                     // Add icon
                                     icons[i] = icon;
@@ -158,11 +158,8 @@ namespace YetAnotherFaviconDownloader
             // Progress 100%
             ReportProgress(progress);
 
-            // Add all icons to the database
-            pluginHost.Database.CustomIcons.AddRange(icons);
-
-            // Remove invalid entries
-            pluginHost.Database.CustomIcons.RemoveAll(x => x == null);
+            // Prevents inserting duplicate icons
+            MergeCustomIcons(icons);
 
             // Refresh icons on database
             pluginHost.Database.UINeedsIconUpdate = true;
@@ -175,6 +172,39 @@ namespace YetAnotherFaviconDownloader
         {
             logger.SetProgress((uint)progress.Percent);
             logger.SetText(String.Format("Success: {0} / Not Found: {1} / Error: {2} / Remaining: {3}", progress.Success, progress.NotFound, progress.Error, progress.Remaining), LogStatusType.Info);
+        }
+
+        private void MergeCustomIcons(PwCustomIcon[] icons)
+        {
+            var customIcons = pluginHost.Database.CustomIcons;
+
+            // Removes duplicate downloaded icons
+            for (int i = 0; i < icons.Length; i++)
+            {
+                if (icons[i] == null)
+                {
+                    continue;
+                }
+
+                for (var j = i + 1; j < icons.Length; j++)
+                {
+                    if (icons[j] == null)
+                    {
+                        continue;
+                    }
+
+                    if (icons[i].Uuid.Equals(icons[j].Uuid))
+                    {
+                        icons[j] = null;
+                    }
+                }
+            }
+
+            // Add all icons to the database
+            customIcons.AddRange(icons);
+
+            // Remove invalid entries
+            customIcons.RemoveAll(x => x == null);
         }
 
         private void BgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
