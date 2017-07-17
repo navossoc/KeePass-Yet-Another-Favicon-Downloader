@@ -145,10 +145,19 @@ namespace YetAnotherFaviconDownloader
                         return null;
                     }
                 }
+
+                return null;
             }
 
-            // Download file
-            return DownloadData(address);
+            // HTTP//HTTPS scheme
+            if (address.Scheme == "http" || address.Scheme == "https")
+            {
+                // Download file
+                return DownloadData(address);
+            }
+
+            // TODO: Should allow other protocols here? (need research)
+            return null;
         }
 
         private bool IsValidURL(string url)
@@ -201,7 +210,19 @@ namespace YetAnotherFaviconDownloader
             relativeUri = sb.ToString();
 
             // TODO: need improvement
-            return Uri.TryCreate(baseUri, relativeUri, out result);
+            if (Uri.TryCreate(baseUri, relativeUri, out result))
+            {
+                // Only allow this schemes (for now)
+                switch (result.Scheme)
+                {
+                    case "data":
+                    case "http":
+                    case "https":
+                        return true;
+                }
+            }
+
+            return false;
         }
 
         private IEnumerable<Uri> GetIconsUrl(Uri entryUrl, string html)
