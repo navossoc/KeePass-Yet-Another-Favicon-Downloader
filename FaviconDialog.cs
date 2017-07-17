@@ -90,50 +90,59 @@ namespace YetAnotherFaviconDownloader
                             var i = Interlocked.Increment(ref progress.Current) - 1;
 
                             // Fields
-                            var url = entry.Strings.ReadSafe("URL");
+                            var url = entry.Strings.ReadSafe(PwDefs.UrlField);
 
-                            Util.Log("Downloading: {0}", url);
-
-                            using (var fd = new FaviconDownloader())
+                            // Empty URL field
+                            if (url == string.Empty)
                             {
-                                try
+                                // Can't find an icon
+                                Interlocked.Increment(ref progress.NotFound);
+                            }
+                            else
+                            {
+                                Util.Log("Downloading: {0}", url);
+
+                                using (var fd = new FaviconDownloader())
                                 {
-                                    // Download favicon
-                                    var data = fd.GetIcon(url);
-                                    Util.Log("Icon downloaded with success");
-
-                                    // Hash icon data (avoid duplicates)
-                                    var hash = Util.HashData(data);
-
-                                    // Creates an icon only if your UUID does not exist
-                                    var uuid = new PwUuid(hash);
-                                    var icon = pluginHost.Database.CustomIcons.Find(x => x.Uuid.Equals(uuid)) ?? new PwCustomIcon(uuid, data);
-
-                                    // Add icon
-                                    icons[i] = icon;
-
-                                    // Associate with this entry
-                                    entry.CustomIconUuid = uuid;
-
-                                    // Save it
-                                    entry.Touch(true, false);
-
-                                    // Icon downloaded with success
-                                    Interlocked.Increment(ref progress.Success);
-                                }
-                                catch (FaviconDownloaderException ex)
-                                {
-                                    Util.Log("Failed to download favicon");
-
-                                    if (ex.Status == FaviconDownloaderExceptionStatus.NotFound)
+                                    try
                                     {
-                                        // Can't find an icon
-                                        Interlocked.Increment(ref progress.NotFound);
+                                        // Download favicon
+                                        var data = fd.GetIcon(url);
+                                        Util.Log("Icon downloaded with success");
+
+                                        // Hash icon data (avoid duplicates)
+                                        var hash = Util.HashData(data);
+
+                                        // Creates an icon only if your UUID does not exist
+                                        var uuid = new PwUuid(hash);
+                                        var icon = pluginHost.Database.CustomIcons.Find(x => x.Uuid.Equals(uuid)) ?? new PwCustomIcon(uuid, data);
+
+                                        // Add icon
+                                        icons[i] = icon;
+
+                                        // Associate with this entry
+                                        entry.CustomIconUuid = uuid;
+
+                                        // Save it
+                                        entry.Touch(true, false);
+
+                                        // Icon downloaded with success
+                                        Interlocked.Increment(ref progress.Success);
                                     }
-                                    else
+                                    catch (FaviconDownloaderException ex)
                                     {
-                                        // Some other error (network, etc)
-                                        Interlocked.Increment(ref progress.Error);
+                                        Util.Log("Failed to download favicon");
+
+                                        if (ex.Status == FaviconDownloaderExceptionStatus.NotFound)
+                                        {
+                                            // Can't find an icon
+                                            Interlocked.Increment(ref progress.NotFound);
+                                        }
+                                        else
+                                        {
+                                            // Some other error (network, etc)
+                                            Interlocked.Increment(ref progress.Error);
+                                        }
                                     }
                                 }
                             }
