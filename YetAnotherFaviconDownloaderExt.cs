@@ -1,7 +1,8 @@
 ﻿using KeePass.Plugins;
 using KeePassLib;
 using System;
-using System.Collections.Generic;
+using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace YetAnotherFaviconDownloader
 {
@@ -12,69 +13,140 @@ namespace YetAnotherFaviconDownloader
             get { return "https://raw.githubusercontent.com/navossoc/KeePass-Yet-Another-Favicon-Downloader/master/VERSION"; }
         }
 
-        private IPluginHost m_host = null;
+        // Plugin host interface
+        private IPluginHost pluginHost;
+
+        // Entry Context Menu
+        private ToolStripSeparator entrySeparator;
+        private ToolStripMenuItem entryDownloadFaviconsItem;
+
+        // Group Context Menu
+        private ToolStripSeparator groupSeparator;
+        private ToolStripMenuItem groupDownloadFaviconsItem;
+
+#if DEBUG
+        // Tools Menu
+        private ToolStripSeparator toolsMenuSeparator;
+        private ToolStripMenuItem[] toolsMenuDropDownItems;
+        private ToolStripMenuItem toolsMenuYAFD;
+#endif
 
         public override bool Initialize(IPluginHost host)
         {
-            m_host = host;
-
             Util.Log("Plugin Initialize");
 
-            var entriesMenu = m_host.MainWindow.EntryContextMenu.Items;
-            entriesMenu.Add("Download favicon", null, MenuEntry_Click);
+            Debug.Assert(host != null);
+            if (host == null)
+            {
+                return false;
+            }
+            pluginHost = host;
+
+            // Add Entry Context menu items
+            entrySeparator = new ToolStripSeparator();
+            entryDownloadFaviconsItem = new ToolStripMenuItem("Download Favicons", null, DownloadFaviconsEntry_Click);
+            pluginHost.MainWindow.EntryContextMenu.Items.Add(entrySeparator);
+            pluginHost.MainWindow.EntryContextMenu.Items.Add(entryDownloadFaviconsItem);
+
+            // Add Group Context menu items
+            groupSeparator = new ToolStripSeparator();
+            groupDownloadFaviconsItem = new ToolStripMenuItem("Download Favicons", null, DownloadFaviconsGroup_Click);
+            pluginHost.MainWindow.GroupContextMenu.Items.Add(groupSeparator);
+            pluginHost.MainWindow.GroupContextMenu.Items.Add(groupDownloadFaviconsItem);
+
 #if DEBUG
-            // A little helper to make my tests easier
-            entriesMenu.Add("Clear all favicon", null, MenuEntry2_Click);
+            // Add Tools menu items
+            toolsMenuSeparator = new ToolStripSeparator();
+            toolsMenuDropDownItems = new ToolStripMenuItem[]
+            {
+                new ToolStripMenuItem("Reset Icons", null, ResetIconsMenu_Click)
+            };
+            toolsMenuYAFD = new ToolStripMenuItem("Yet Another Favicon Downloader", null, toolsMenuDropDownItems);
+
+            pluginHost.MainWindow.ToolsMenu.DropDownItems.Add(toolsMenuSeparator);
+            pluginHost.MainWindow.ToolsMenu.DropDownItems.Add(toolsMenuYAFD);
 #endif
 
             return true;
         }
 
-        private void MenuEntry_Click(object sender, EventArgs e)
+        public override void Terminate()
         {
-            Util.Log("Menu entry clicked");
+            Util.Log("Plugin Terminate");
 
-            var entries = m_host.MainWindow.GetSelectedEntries();
-            if (entries == null)
-            {
-                Util.Log("No entries selected");
+            // Remove Entry Context menu items
+            pluginHost.MainWindow.EntryContextMenu.Items.Remove(entrySeparator);
+            pluginHost.MainWindow.EntryContextMenu.Items.Remove(entryDownloadFaviconsItem);
+
+            // Remove Group Context menu items
+            pluginHost.MainWindow.GroupContextMenu.Items.Remove(groupSeparator);
+            pluginHost.MainWindow.GroupContextMenu.Items.Remove(groupDownloadFaviconsItem);
 
 #if DEBUG
-                // Download the entire group if there are no entries selected
-                var group = m_host.MainWindow.GetSelectedGroup();
-                if (group == null)
-                {
-                    return;
-                }
-
-                // Convert PwObjectList<PwEntry> to PwEntry[]
-                entries = new List<PwEntry>(group.GetEntries(true)).ToArray();
-#else
-                return;
+            // Remove Tools menu items
+            pluginHost.MainWindow.ToolsMenu.DropDownItems.Remove(toolsMenuSeparator);
+            pluginHost.MainWindow.ToolsMenu.DropDownItems.Remove(toolsMenuYAFD);
 #endif
+        }
+
+        #region MenuItem EventHandler
+        private void DownloadFaviconsEntry_Click(object sender, EventArgs e)
+        {
+            Util.Log("Entry Context Menu -> Download Favicons clicked");
+
+            var entries = pluginHost.MainWindow.GetSelectedEntries();
+            DownloadFavicons(entries);
+        }
+
+        private void DownloadFaviconsGroup_Click(object sender, EventArgs e)
+        {
+            Util.Log("Group Context Menu -> Download Favicons clicked");
+
+            var group = pluginHost.MainWindow.GetSelectedGroup();
+            if (group == null)
+            {
+                Util.Log("No group selected");
+                return;
             }
 
-            // Run all the work in a new thread
-            var downloader = new FaviconDialog(m_host);
-            downloader.Run(entries);
+            // Get all entries from the group
+            bool subEntries = KeePass.Program.Config.MainWindow.ShowEntriesOfSubGroups;
+            var entriesInGroup = group.GetEntries(subEntries);
+            if (entriesInGroup == null || entriesInGroup.UCount == 0)
+            {
+                Util.Log("No entries in group");
+                return;
+            }
+
+            // Copy PwObjectList<PwEntry> to PwEntry[]
+            var entries = entriesInGroup.CloneShallowToList().ToArray();
+            DownloadFavicons(entries);
         }
 
 #if DEBUG
-        private void MenuEntry2_Click(object sender, EventArgs e)
+        private void ResetIconsMenu_Click(object sender, EventArgs e)
         {
-            Util.Log("Menu entry 2 clicked");
+            Util.Log("Tools Menu -> Reset Icons clicked");
 
             // Reset icons from all groups
-            var groups = m_host.Database.RootGroup.GetGroups(true);
+            var groups = pluginHost.Database.RootGroup.GetGroups(true);
             foreach (var group in groups)
             {
-                group.IconId = PwIcon.Folder;
+                //  Recycle bin
+                if (group.Uuid.Equals(pluginHost.Database.RecycleBinUuid))
+                {
+                    group.IconId = PwIcon.TrashBin;
+                }
+                else
+                {
+                    group.IconId = PwIcon.Folder;
+                }
                 group.CustomIconUuid = PwUuid.Zero;
                 group.Touch(true, false);
             }
 
             // Reset icons from all entries
-            var entries = m_host.Database.RootGroup.GetEntries(true);
+            var entries = pluginHost.Database.RootGroup.GetEntries(true);
             foreach (var entry in entries)
             {
                 entry.IconId = PwIcon.Key;
@@ -83,17 +155,25 @@ namespace YetAnotherFaviconDownloader
             }
 
             // Remove all custom icons from database
-            m_host.Database.CustomIcons.Clear();
+            pluginHost.Database.CustomIcons.Clear();
 
             // Refresh icons
-            m_host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
+            pluginHost.MainWindow.UpdateUI(false, null, true, null, true, null, true);
         }
 #endif
+        #endregion
 
-        public override void Terminate()
+        private void DownloadFavicons(PwEntry[] entries)
         {
-            Util.Log("Plugin Terminate");
-            return;
+            if (entries == null || entries.Length == 0)
+            {
+                Util.Log("No entries selected");
+                return;
+            }
+
+            // Run all the work in a new thread
+            var downloader = new FaviconDialog(pluginHost);
+            downloader.Run(entries);
         }
     }
 }
