@@ -128,6 +128,13 @@ namespace YetAnotherFaviconDownloader
         {
             Util.Log("Tools Menu -> Reset Icons clicked");
 
+            // Checks if there is an open database
+            if (!pluginHost.Database.IsOpen)
+            {
+                Util.Log("Database not open");
+                return;
+            }
+
             // Reset icons from all groups
             var groups = pluginHost.Database.RootGroup.GetGroups(true);
             foreach (var group in groups)
