@@ -2,6 +2,7 @@
 using KeePassLib;
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace YetAnotherFaviconDownloader
@@ -15,6 +16,9 @@ namespace YetAnotherFaviconDownloader
 
         // Plugin host interface
         private IPluginHost pluginHost;
+
+        // Icon used by YAFD menus
+        private Image menuImage;
 
         // Entry Context Menu
         private ToolStripSeparator entrySeparator;
@@ -42,15 +46,18 @@ namespace YetAnotherFaviconDownloader
             }
             pluginHost = host;
 
+            // Load menus icon resource
+            menuImage = Properties.Resources.Download_32;
+
             // Add Entry Context menu items
             entrySeparator = new ToolStripSeparator();
-            entryDownloadFaviconsItem = new ToolStripMenuItem("Download Favicons", null, DownloadFaviconsEntry_Click);
+            entryDownloadFaviconsItem = new ToolStripMenuItem("Download Favicons", menuImage, DownloadFaviconsEntry_Click);
             pluginHost.MainWindow.EntryContextMenu.Items.Add(entrySeparator);
             pluginHost.MainWindow.EntryContextMenu.Items.Add(entryDownloadFaviconsItem);
 
             // Add Group Context menu items
             groupSeparator = new ToolStripSeparator();
-            groupDownloadFaviconsItem = new ToolStripMenuItem("Download Favicons", null, DownloadFaviconsGroup_Click);
+            groupDownloadFaviconsItem = new ToolStripMenuItem("Download Favicons", menuImage, DownloadFaviconsGroup_Click);
             pluginHost.MainWindow.GroupContextMenu.Items.Add(groupSeparator);
             pluginHost.MainWindow.GroupContextMenu.Items.Add(groupDownloadFaviconsItem);
 
@@ -61,7 +68,7 @@ namespace YetAnotherFaviconDownloader
             {
                 new ToolStripMenuItem("Reset Icons", null, ResetIconsMenu_Click)
             };
-            toolsMenuYAFD = new ToolStripMenuItem("Yet Another Favicon Downloader", null, toolsMenuDropDownItems);
+            toolsMenuYAFD = new ToolStripMenuItem("Yet Another Favicon Downloader", menuImage, toolsMenuDropDownItems);
 
             pluginHost.MainWindow.ToolsMenu.DropDownItems.Add(toolsMenuSeparator);
             pluginHost.MainWindow.ToolsMenu.DropDownItems.Add(toolsMenuYAFD);
