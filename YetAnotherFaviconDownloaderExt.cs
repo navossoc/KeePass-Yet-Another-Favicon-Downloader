@@ -81,6 +81,19 @@ namespace YetAnotherFaviconDownloader
         {
             Util.Log("Plugin Terminate");
 
+            // This should never happen but better safe than sorry
+            Debug.Assert(pluginHost != null);
+            if (pluginHost == null)
+            {
+                return;
+            }
+
+            // Dispose resources
+            if (menuImage != null)
+            {
+                menuImage.Dispose();
+            }
+
             // Remove Entry Context menu items
             pluginHost.MainWindow.EntryContextMenu.Items.Remove(entrySeparator);
             pluginHost.MainWindow.EntryContextMenu.Items.Remove(entryDownloadFaviconsItem);
