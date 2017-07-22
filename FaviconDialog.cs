@@ -117,10 +117,11 @@ namespace YetAnotherFaviconDownloader
 
                                         // Creates an icon only if your UUID does not exist
                                         var uuid = new PwUuid(hash);
-                                        var icon = pluginHost.Database.CustomIcons.Find(x => x.Uuid.Equals(uuid)) ?? new PwCustomIcon(uuid, data);
-
-                                        // Add icon
-                                        icons[i] = icon;
+                                        if (!pluginHost.Database.CustomIcons.Exists(x => x.Uuid.Equals(uuid)))
+                                        {
+                                            // Add icon
+                                            icons[i] = new PwCustomIcon(uuid, data);
+                                        }
 
                                         // Associate with this entry
                                         entry.CustomIconUuid = uuid;
