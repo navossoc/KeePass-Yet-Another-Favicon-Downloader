@@ -15,6 +15,8 @@ namespace YetAnotherFaviconDownloader
         private readonly BackgroundWorker bgWorker;
         private readonly IStatusLogger logger;
 
+        private string status;
+
         private class ProgressInfo
         {
             public int Success;
@@ -172,6 +174,7 @@ namespace YetAnotherFaviconDownloader
 
             // Progress 100%
             ReportProgress(progress);
+            status = String.Format("Success: {0} / Not Found: {1} / Error: {2}.", progress.Success, progress.NotFound, progress.Error);
 
             // Prevents inserting duplicate icons
             MergeCustomIcons(icons);
@@ -179,8 +182,10 @@ namespace YetAnotherFaviconDownloader
             // Refresh icons on database
             pluginHost.Database.UINeedsIconUpdate = true;
 
+#if DEBUG
             // Waits long enough until we can see the output
             Thread.Sleep(3000);
+#endif
         }
 
         private void ReportProgress(ProgressInfo progress)
@@ -245,6 +250,9 @@ namespace YetAnotherFaviconDownloader
             pluginHost.MainWindow.UpdateUI(false, null, false, null, false, null, true);
 
             logger.EndLogging();
+
+            // Report how many icons have been downloaded
+            pluginHost.MainWindow.SetStatusEx(status);
         }
     }
 }
