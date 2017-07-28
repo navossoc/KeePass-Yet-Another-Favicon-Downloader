@@ -12,7 +12,8 @@ namespace YetAnotherFaviconDownloader
     public sealed class FaviconDownloader : WebClient
     {
         // Proxy
-        public static new IWebProxy Proxy { get; set; }
+        private static IWebProxy _proxy;
+        public static new IWebProxy Proxy { get { return _proxy; } set { _proxy = value; } }
         // User Agent
         private static readonly string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36";
 

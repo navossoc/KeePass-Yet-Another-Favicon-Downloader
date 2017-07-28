@@ -26,7 +26,8 @@ namespace YetAnotherFaviconDownloader
             public int Current;
             public int Remaining;
 
-            public int Total { get; private set; }
+            private int _total;
+            public int Total { get { return _total; } private set { _total = value; } }
             public float Percent
             {
                 get { return ((Total - Remaining) * 100f) / Total; }

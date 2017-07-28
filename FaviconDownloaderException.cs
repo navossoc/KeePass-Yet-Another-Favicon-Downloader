@@ -10,7 +10,8 @@ namespace YetAnotherFaviconDownloader
 
     public class FaviconDownloaderException : Exception
     {
-        public FaviconDownloaderExceptionStatus Status { get; private set; }
+        private FaviconDownloaderExceptionStatus _status;
+        public FaviconDownloaderExceptionStatus Status { get { return _status; } private set { _status = value; } }
 
         public FaviconDownloaderException() : this(FaviconDownloaderExceptionStatus.Error)
         {
