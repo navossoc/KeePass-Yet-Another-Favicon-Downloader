@@ -80,8 +80,9 @@ namespace YetAnotherFaviconDownloader
 
             using (ManualResetEvent waiter = new ManualResetEvent(false))
             {
-                foreach (PwEntry entry in entries)
+                for (int j = 0; j < entries.Length; j++)
                 {
+                    PwEntry entry = entries[j];
                     ThreadPool.QueueUserWorkItem(delegate (object notUsed)
                     {
                         // Checks whether the user pressed the cancel button or the close button
