@@ -1,6 +1,7 @@
 ﻿using KeePassLib.Utility;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -57,18 +58,18 @@ namespace YetAnotherFaviconDownloader
 
             try
             {
-                var address = new Uri(url);
+                Uri address = new Uri(url);
 
                 // Download
-                var page = DownloadPage(address);
-                var head = StripPage(page);
-                var links = GetIconsUrl(address, head);
+                string page = DownloadPage(address);
+                string head = StripPage(page);
+                IEnumerable<Uri> links = GetIconsUrl(address, head);
 
                 // Try to find a valid image
-                foreach (var link in links)
+                foreach (Uri link in links)
                 {
                     // Download file
-                    var data = DownloadAsset(link);
+                    byte[] data = DownloadAsset(link);
 
                     // Check if the data is a valid image
                     if (IsValidImage(data))
@@ -79,7 +80,7 @@ namespace YetAnotherFaviconDownloader
             }
             catch (WebException ex)
             {
-                var response = ex.Response as HttpWebResponse;
+                HttpWebResponse response = ex.Response as HttpWebResponse;
                 if (response != null && response.StatusCode == HttpStatusCode.NotFound)
                 {
                     throw new FaviconDownloaderException(FaviconDownloaderExceptionStatus.NotFound);
@@ -96,7 +97,7 @@ namespace YetAnotherFaviconDownloader
 
         protected override WebRequest GetWebRequest(Uri address)
         {
-            var request = base.GetWebRequest(address) as HttpWebRequest;
+            HttpWebRequest request = base.GetWebRequest(address) as HttpWebRequest;
 
             // Set up proxy information
             request.Proxy = Proxy;
@@ -123,13 +124,13 @@ namespace YetAnotherFaviconDownloader
             // Data URI scheme
             if (address.Scheme == "data")
             {
-                var uri = address.ToString();
+                string uri = address.ToString();
 
                 // data:[<mediatype>][;base64],<data>
-                var match = dataSchema.Match(uri);
+                Match match = dataSchema.Match(uri);
                 if (match.Success)
                 {
-                    var data = match.Groups["data"].Value;
+                    string data = match.Groups["data"].Value;
 
                     try
                     {
@@ -172,7 +173,7 @@ namespace YetAnotherFaviconDownloader
         private string DownloadPage(Uri address)
         {
             // TODO: handle encoding issues
-            var html = DownloadString(address);
+            string html = DownloadString(address);
 
             return html;
         }
@@ -180,7 +181,7 @@ namespace YetAnotherFaviconDownloader
         private string StripPage(string html)
         {
             // Extract <head> tag
-            var match = headTag.Match(html);
+            Match match = headTag.Match(html);
             if (match.Success)
             {
                 // <head> content
@@ -198,7 +199,7 @@ namespace YetAnotherFaviconDownloader
 
         private bool NormalizeHref(Uri baseUri, string relativeUri, out Uri result)
         {
-            var sb = new StringBuilder(relativeUri.Trim());
+            StringBuilder sb = new StringBuilder(relativeUri.Trim());
             sb.Replace("\t", "");
             sb.Replace("\n", "");
             sb.Replace("\r", "");
@@ -224,7 +225,7 @@ namespace YetAnotherFaviconDownloader
         private IEnumerable<Uri> GetIconsUrl(Uri entryUrl, string html)
         {
             // List of possible icons
-            var urls = new List<Uri>();
+            List<Uri> urls = new List<Uri>();
 
             Uri faviconUrl;
 
@@ -232,14 +233,14 @@ namespace YetAnotherFaviconDownloader
             foreach (Match linkTag in linkTags.Matches(html))
             {
                 // Checks if it has the rel icon attribute
-                var linkHtml = linkTag.ToString();
+                string linkHtml = linkTag.ToString();
                 if (relAttribute.IsMatch(linkHtml))
                 {
                     // Extract href attribute value
-                    var hrefHtml = hrefAttribute.Match(linkHtml);
+                    Match hrefHtml = hrefAttribute.Match(linkHtml);
                     if (hrefHtml.Success)
                     {
-                        var href = hrefHtml.Groups["url"].Value;
+                        string href = hrefHtml.Groups["url"].Value;
 
                         // Make a valid URL
                         if (NormalizeHref(entryUrl, href, out faviconUrl))
@@ -272,7 +273,7 @@ namespace YetAnotherFaviconDownloader
 
             try
             {
-                var image = GfxUtil.LoadImage(data);
+                Image image = GfxUtil.LoadImage(data);
                 return true;
             }
             catch (Exception)

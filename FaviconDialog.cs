@@ -3,6 +3,7 @@ using KeePass.UI;
 using KeePassLib;
 using KeePassLib.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
 using System.Windows.Forms;
@@ -64,21 +65,21 @@ namespace YetAnotherFaviconDownloader
 
         private void BgWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            var worker = sender as BackgroundWorker;
-            var entries = e.Argument as PwEntry[];
+            BackgroundWorker worker = sender as BackgroundWorker;
+            PwEntry[] entries = e.Argument as PwEntry[];
 
             // Progress information
-            var progress = new ProgressInfo(entries.Length);
+            ProgressInfo progress = new ProgressInfo(entries.Length);
 
             // Custom icons that will be added to the database
-            var icons = new PwCustomIcon[entries.Length];
+            PwCustomIcon[] icons = new PwCustomIcon[entries.Length];
 
             // Set up proxy information for all WebClients
             FaviconDownloader.Proxy = Util.GetKeePassProxy();
 
-            using (var waiter = new ManualResetEvent(false))
+            using (ManualResetEvent waiter = new ManualResetEvent(false))
             {
-                foreach (var entry in entries)
+                foreach (PwEntry entry in entries)
                 {
                     ThreadPool.QueueUserWorkItem(notUsed =>
                     {
@@ -89,10 +90,10 @@ namespace YetAnotherFaviconDownloader
                         }
                         else
                         {
-                            var i = Interlocked.Increment(ref progress.Current) - 1;
+                            int i = Interlocked.Increment(ref progress.Current) - 1;
 
                             // Fields
-                            var url = entry.Strings.ReadSafe(PwDefs.UrlField);
+                            string url = entry.Strings.ReadSafe(PwDefs.UrlField);
 
                             // Empty URL field
                             if (url == string.Empty)
@@ -104,19 +105,19 @@ namespace YetAnotherFaviconDownloader
                             {
                                 Util.Log("Downloading: {0}", url);
 
-                                using (var fd = new FaviconDownloader())
+                                using (FaviconDownloader fd = new FaviconDownloader())
                                 {
                                     try
                                     {
                                         // Download favicon
-                                        var data = fd.GetIcon(url);
+                                        byte[] data = fd.GetIcon(url);
                                         Util.Log("Icon downloaded with success");
 
                                         // Hash icon data (avoid duplicates)
-                                        var hash = Util.HashData(data);
+                                        byte[] hash = Util.HashData(data);
 
                                         // Creates an icon only if your UUID does not exist
-                                        var uuid = new PwUuid(hash);
+                                        PwUuid uuid = new PwUuid(hash);
                                         if (!pluginHost.Database.CustomIcons.Exists(x => x.Uuid.Equals(uuid)))
                                         {
                                             // Add icon
@@ -197,7 +198,7 @@ namespace YetAnotherFaviconDownloader
 
         private void MergeCustomIcons(PwCustomIcon[] icons)
         {
-            var customIcons = pluginHost.Database.CustomIcons;
+            List<PwCustomIcon> customIcons = pluginHost.Database.CustomIcons;
 
             // Removes duplicate downloaded icons
             for (int i = 0; i < icons.Length; i++)
@@ -207,7 +208,7 @@ namespace YetAnotherFaviconDownloader
                     continue;
                 }
 
-                for (var j = i + 1; j < icons.Length; j++)
+                for (int j = i + 1; j < icons.Length; j++)
                 {
                     if (icons[j] == null)
                     {

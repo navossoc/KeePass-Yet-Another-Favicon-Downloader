@@ -1,6 +1,7 @@
 ﻿using KeePass.Plugins;
 using KeePass.Util;
 using KeePassLib;
+using KeePassLib.Collections;
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -132,7 +133,7 @@ namespace YetAnotherFaviconDownloader
         {
             Util.Log("Entry Context Menu -> Download Favicons clicked");
 
-            var entries = pluginHost.MainWindow.GetSelectedEntries();
+            PwEntry[] entries = pluginHost.MainWindow.GetSelectedEntries();
             DownloadFavicons(entries);
         }
 
@@ -140,7 +141,7 @@ namespace YetAnotherFaviconDownloader
         {
             Util.Log("Group Context Menu -> Download Favicons clicked");
 
-            var group = pluginHost.MainWindow.GetSelectedGroup();
+            PwGroup group = pluginHost.MainWindow.GetSelectedGroup();
             if (group == null)
             {
                 Util.Log("No group selected");
@@ -149,7 +150,7 @@ namespace YetAnotherFaviconDownloader
 
             // Get all entries from the group
             bool subEntries = KeePass.Program.Config.MainWindow.ShowEntriesOfSubGroups;
-            var entriesInGroup = group.GetEntries(subEntries);
+            PwObjectList<PwEntry> entriesInGroup = group.GetEntries(subEntries);
             if (entriesInGroup == null || entriesInGroup.UCount == 0)
             {
                 Util.Log("No entries in group");
@@ -157,7 +158,7 @@ namespace YetAnotherFaviconDownloader
             }
 
             // Copy PwObjectList<PwEntry> to PwEntry[]
-            var entries = entriesInGroup.CloneShallowToList().ToArray();
+            PwEntry[] entries = entriesInGroup.CloneShallowToList().ToArray();
             DownloadFavicons(entries);
         }
 
@@ -174,8 +175,8 @@ namespace YetAnotherFaviconDownloader
             }
 
             // Reset icons from all groups
-            var groups = pluginHost.Database.RootGroup.GetGroups(true);
-            foreach (var group in groups)
+            PwObjectList<PwGroup> groups = pluginHost.Database.RootGroup.GetGroups(true);
+            foreach (PwGroup group in groups)
             {
                 //  Recycle bin
                 if (group.Uuid.Equals(pluginHost.Database.RecycleBinUuid))
@@ -191,8 +192,8 @@ namespace YetAnotherFaviconDownloader
             }
 
             // Reset icons from all entries
-            var entries = pluginHost.Database.RootGroup.GetEntries(true);
-            foreach (var entry in entries)
+            PwObjectList<PwEntry> entries = pluginHost.Database.RootGroup.GetEntries(true);
+            foreach (PwEntry entry in entries)
             {
                 entry.IconId = PwIcon.Key;
                 entry.CustomIconUuid = PwUuid.Zero;
@@ -217,7 +218,7 @@ namespace YetAnotherFaviconDownloader
             }
 
             // Run all the work in a new thread
-            var downloader = new FaviconDialog(pluginHost);
+            FaviconDialog downloader = new FaviconDialog(pluginHost);
             downloader.Run(entries);
         }
     }

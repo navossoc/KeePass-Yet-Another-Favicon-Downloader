@@ -1,9 +1,10 @@
-﻿using System.Net;
-using System.Diagnostics;
-using System.Reflection;
-using System.Text;
-using System.Security.Cryptography;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace YetAnotherFaviconDownloader
 {
@@ -16,13 +17,13 @@ namespace YetAnotherFaviconDownloader
         /// <remarks>This is a little hacky, but they made me do it!</remarks>
         public static IWebProxy GetKeePassProxy()
         {
-            var parameters = new object[] { null };
+            object[] parameters = new object[] { null };
             bool result = false;
 
-            var type = typeof(KeePassLib.Serialization.IOConnection);
+            Type type = typeof(KeePassLib.Serialization.IOConnection);
             if (type != null)
             {
-                var methodInfo = type.GetMethod("GetWebProxy", BindingFlags.Static | BindingFlags.NonPublic);
+                MethodInfo methodInfo = type.GetMethod("GetWebProxy", BindingFlags.Static | BindingFlags.NonPublic);
                 if (methodInfo != null)
                 {
                     result = (bool)methodInfo.Invoke(null, parameters);
@@ -34,7 +35,7 @@ namespace YetAnotherFaviconDownloader
 
         public static byte[] HashData(byte[] data)
         {
-            using (var md5 = MD5.Create())
+            using (MD5 md5 = MD5.Create())
             {
                 return md5.ComputeHash(data);
             }
@@ -42,13 +43,13 @@ namespace YetAnotherFaviconDownloader
 
         public static List<T> RemoveDuplicates<T>(List<T> source)
         {
-            var set = new Dictionary<T, object>();
-            var result = new List<T>(source.Count);
-            var hasNull = false;
+            Dictionary<T, object> set = new Dictionary<T, object>();
+            List<T> result = new List<T>(source.Count);
+            bool hasNull = false;
 
-            for (var i = 0; i < source.Count; i++)
+            for (int i = 0; i < source.Count; i++)
             {
-                var item = source[i];
+                T item = source[i];
                 if (item == null)
                 {
                     if (!hasNull)
@@ -72,7 +73,7 @@ namespace YetAnotherFaviconDownloader
 
         public static string ToHex(byte[] hash)
         {
-            var sb = new StringBuilder(hash.Length * 2);
+            StringBuilder sb = new StringBuilder(hash.Length * 2);
 
             for (int i = 0; i < hash.Length; i++)
             {
