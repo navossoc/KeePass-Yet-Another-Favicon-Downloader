@@ -82,7 +82,7 @@ namespace YetAnotherFaviconDownloader
             {
                 foreach (PwEntry entry in entries)
                 {
-                    ThreadPool.QueueUserWorkItem(notUsed =>
+                    ThreadPool.QueueUserWorkItem(delegate (object notUsed)
                     {
                         // Checks whether the user pressed the cancel button or the close button
                         if (!logger.ContinueWork())
@@ -119,7 +119,7 @@ namespace YetAnotherFaviconDownloader
 
                                         // Creates an icon only if your UUID does not exist
                                         PwUuid uuid = new PwUuid(hash);
-                                        if (!pluginHost.Database.CustomIcons.Exists(x => x.Uuid.Equals(uuid)))
+                                        if (!pluginHost.Database.CustomIcons.Exists(delegate (PwCustomIcon x) { return x.Uuid.Equals(uuid); }))
                                         {
                                             // Add icon
                                             icons[i] = new PwCustomIcon(uuid, data);
@@ -227,7 +227,7 @@ namespace YetAnotherFaviconDownloader
             customIcons.AddRange(icons);
 
             // Remove invalid entries
-            customIcons.RemoveAll(x => x == null);
+            customIcons.RemoveAll(delegate (PwCustomIcon x) { return x == null; });
         }
 
         private void BgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
