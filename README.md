@@ -17,9 +17,9 @@
 ## Requirements
 * *KeePass* 2.34 or higher.
 ### Linux
-* *Mono* 4.6.2 or newer.
+* *Mono* 2.10.8 or newer.
 ### Windows
-* *.NET Framework* 4.5 or newer.
+* *.NET Framework* 2.0 or newer.
 
 ## Installation
 * Download the [latest](https://github.com/navossoc/KeePass-Yet-Another-Favicon-Downloader/releases/latest) release.
