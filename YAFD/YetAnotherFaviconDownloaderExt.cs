@@ -30,6 +30,9 @@ namespace YetAnotherFaviconDownloader
             get { return "https://raw.githubusercontent.com/navossoc/KeePass-Yet-Another-Favicon-Downloader/master/VERSION"; }
         }
 
+        // Custom settings
+        public static Configuration Config;
+
         // Plugin host interface
         private IPluginHost pluginHost;
 
@@ -44,12 +47,13 @@ namespace YetAnotherFaviconDownloader
         private ToolStripSeparator groupSeparator;
         private ToolStripMenuItem groupDownloadFaviconsItem;
 
-#if DEBUG
         // Tools Menu
         private ToolStripSeparator toolsMenuSeparator;
         private ToolStripMenuItem[] toolsMenuDropDownItems;
         private ToolStripMenuItem toolsMenuYAFD;
-#endif
+
+        // YAFD SubItems
+        private ToolStripMenuItem toolsSubItemsPrefixURLsItem;
 
         public override bool Initialize(IPluginHost host)
         {
@@ -61,6 +65,9 @@ namespace YetAnotherFaviconDownloader
                 return false;
             }
             pluginHost = host;
+
+            // Custom settings
+            Config = new Configuration(pluginHost.CustomConfig);
 
             // Require a signed version file
             UpdateCheckEx.SetFileSigKey(UpdateUrl, UpdateKey);
@@ -80,18 +87,28 @@ namespace YetAnotherFaviconDownloader
             pluginHost.MainWindow.GroupContextMenu.Items.Add(groupSeparator);
             pluginHost.MainWindow.GroupContextMenu.Items.Add(groupDownloadFaviconsItem);
 
-#if DEBUG
+            //////////////////////////////////////////////////////////////////////////
+
+            // Tools -> YAFD -> SubItems
+
+            // Automatic prefix URLs with http://
+            toolsSubItemsPrefixURLsItem = new ToolStripMenuItem("Automatic prefix URLs with http://", null, PrefixURLsMenu_Click);  // TODO: i18n?
+            toolsSubItemsPrefixURLsItem.Checked = Config.GetAutomaticPrefixURLs();
+
             // Add Tools menu items
             toolsMenuSeparator = new ToolStripSeparator();
+
             toolsMenuDropDownItems = new ToolStripMenuItem[]
             {
+                toolsSubItemsPrefixURLsItem,
+#if DEBUG
                 new ToolStripMenuItem("Reset Icons", null, ResetIconsMenu_Click)
+#endif
             };
             toolsMenuYAFD = new ToolStripMenuItem("Yet Another Favicon Downloader", menuImage, toolsMenuDropDownItems);
 
             pluginHost.MainWindow.ToolsMenu.DropDownItems.Add(toolsMenuSeparator);
             pluginHost.MainWindow.ToolsMenu.DropDownItems.Add(toolsMenuYAFD);
-#endif
 
             return true;
         }
@@ -160,6 +177,15 @@ namespace YetAnotherFaviconDownloader
             // Copy PwObjectList<PwEntry> to PwEntry[]
             PwEntry[] entries = entriesInGroup.CloneShallowToList().ToArray();
             DownloadFavicons(entries);
+        }
+
+        private void PrefixURLsMenu_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem menu = sender as ToolStripMenuItem;
+
+            menu.Checked = !menu.Checked;
+
+            Config.SetAutomaticPrefixURLs(menu.Checked);
         }
 
 #if DEBUG

@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration.cs" />
     <Compile Include="FaviconDialog.cs" />
     <Compile Include="FaviconDownloader.cs" />
     <Compile Include="FaviconDownloaderException.cs" />

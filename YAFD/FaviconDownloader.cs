@@ -52,7 +52,7 @@ namespace YetAnotherFaviconDownloader
         public byte[] GetIcon(string url)
         {
             // Check if the URL could be a site address
-            if (!IsValidURL(url))
+            if (!IsValidURL(ref url))
             {
                 throw new FaviconDownloaderException(FaviconDownloaderExceptionStatus.NotFound);
             }
@@ -158,17 +158,24 @@ namespace YetAnotherFaviconDownloader
             return null;
         }
 
-        private bool IsValidURL(string url)
+        private bool IsValidURL(ref string url)
         {
-            if (httpSchema.IsMatch(url))
+            if (!httpSchema.IsMatch(url))
             {
-                Uri result;
-                return Uri.TryCreate(url, UriKind.Absolute, out result);
+                // If the user doesn't want to add the prefix, there is nothing I can do about
+                if (!YetAnotherFaviconDownloaderExt.Config.GetAutomaticPrefixURLs())
+                {
+                    return false;
+                }
+
+                // Prefix the URL with a valid schema
+                url = "http://" + url;
             }
 
-            // TODO: should allow URIs without a schema?
+            // TODO: this still can be improved to test https://
 
-            return false;
+            Uri result;
+            return Uri.TryCreate(url, UriKind.Absolute, out result);
         }
 
         private string DownloadPage(Uri address)
