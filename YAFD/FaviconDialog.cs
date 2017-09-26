@@ -186,10 +186,8 @@ namespace YetAnotherFaviconDownloader
             // Refresh icons on database
             pluginHost.Database.UINeedsIconUpdate = true;
 
-#if DEBUG
             // Waits long enough until we can see the output
             Thread.Sleep(3000);
-#endif
         }
 
         private void ReportProgress(ProgressInfo progress)
