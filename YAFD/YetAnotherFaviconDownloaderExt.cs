@@ -27,7 +27,7 @@ namespace YetAnotherFaviconDownloader
 
         public override string UpdateUrl
         {
-            get { return "https://raw.githubusercontent.com/navossoc/KeePass-Yet-Another-Favicon-Downloader/master/VERSION"; }
+            get { return "https://github.com/navossoc/KeePass-Yet-Another-Favicon-Downloader/raw/master/VERSION"; }
         }
 
         // Custom settings

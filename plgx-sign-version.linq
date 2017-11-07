@@ -87,6 +87,7 @@ using (var sha512 = SHA512.Create())
 
 		// Footer
 		sb.Append(separator);
+		sb.Append(newLine);
 
 		File.WriteAllText(versionFile, sb.ToString().Dump());
 	}
@@ -94,4 +95,3 @@ using (var sha512 = SHA512.Create())
 
 Console.WriteLine();
 Console.WriteLine("Don't forget to change version on file YAFD/Properties/AssemblyInfo.cs");
-
