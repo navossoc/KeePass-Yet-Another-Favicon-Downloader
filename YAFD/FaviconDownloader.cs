@@ -88,7 +88,7 @@ namespace YetAnotherFaviconDownloader
                 }
                 else
                 {
-                    throw new FaviconDownloaderException();
+                    throw new FaviconDownloaderException(ex);
                 }
             }
 
