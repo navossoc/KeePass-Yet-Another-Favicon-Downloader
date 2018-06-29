@@ -97,6 +97,11 @@ namespace YetAnotherFaviconDownloader
                             // Fields
                             string url = entry.Strings.ReadSafe(PwDefs.UrlField);
 
+                            if (url == string.Empty)
+                            {
+                                url = entry.Strings.ReadSafe(PwDefs.TitleField);
+                            }
+
                             // Empty URL field
                             if (url == string.Empty)
                             {
