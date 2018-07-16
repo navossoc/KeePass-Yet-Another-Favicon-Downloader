@@ -22,6 +22,9 @@ namespace YetAnotherFaviconDownloader
         private static readonly Regex headTag, commentTag, scriptStyleTag;
         private static readonly Regex linkTags, relAttribute, hrefAttribute;
 
+        // URI after redirection
+        private Uri responseUri;
+
         static FaviconDownloader()
         {
             // Data URI schema
@@ -43,10 +46,12 @@ namespace YetAnotherFaviconDownloader
             linkTags = new Regex(@"<link\b.*?>", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline);
 
             // <link> tags with rel attribute
-            relAttribute = new Regex(@"rel\s*=\s*(icon\b|(?<q>'|"")\s*(shortcut\s*\b)?icon\b\s*\k<q>)", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.Singleline);
+            relAttribute = new Regex(@"rel\s*=\s*(icon\b|(?<q>'|"")\s*(shortcut\s*\b)?icon(\b\s*shortcut)?\b\s*\k<q>)", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.Singleline);
 
             // <link> tags with href attribute
             hrefAttribute = new Regex(@"href\s*=\s*((?<q>'|"")(?<url>.*?)(\k<q>|>)|(?<url>.*?)(\s+|>))", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.Singleline);
+
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls | SecurityProtocolType.Ssl3;
         }
 
         public byte[] GetIcon(string url)
@@ -64,13 +69,20 @@ namespace YetAnotherFaviconDownloader
                 // Download
                 string page = DownloadPage(address);
                 string head = StripPage(page);
-                IEnumerable<Uri> links = GetIconsUrl(address, head);
+                IEnumerable<Uri> links = GetIconsUrl(responseUri, head);
 
                 // Try to find a valid image
                 foreach (Uri link in links)
                 {
-                    // Download file
-                    byte[] data = DownloadAsset(link);
+                    byte[] data = null;
+                    try
+                    {
+                        // Download file
+                        data = DownloadAsset(link);
+                    }
+                    catch (WebException)
+                    {
+                    }
 
                     // Check if the data is a valid image
                     if (IsValidImage(data))
@@ -109,7 +121,7 @@ namespace YetAnotherFaviconDownloader
 
             // Follow redirection responses with an HTTP status code from 300 to 399
             request.AllowAutoRedirect = true;
-            request.MaximumAutomaticRedirections = 4;
+            request.MaximumAutomaticRedirections = 10;
 
             // Sets the cookies associated with the request (security issue?)
             request.CookieContainer = new CookieContainer();
@@ -118,6 +130,13 @@ namespace YetAnotherFaviconDownloader
             request.UserAgent = userAgent;
 
             return request;
+        }
+
+        protected override WebResponse GetWebResponse(WebRequest request)
+        {
+            WebResponse response = base.GetWebResponse(request);
+            responseUri = response.ResponseUri;
+            return response;
         }
 
         private byte[] DownloadAsset(Uri address)
