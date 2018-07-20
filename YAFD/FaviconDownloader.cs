@@ -109,7 +109,7 @@ namespace YetAnotherFaviconDownloader
 
             // Follow redirection responses with an HTTP status code from 300 to 399
             request.AllowAutoRedirect = true;
-            request.MaximumAutomaticRedirections = 4;
+            request.MaximumAutomaticRedirections = 10;
 
             // Sets the cookies associated with the request (security issue?)
             request.CookieContainer = new CookieContainer();
