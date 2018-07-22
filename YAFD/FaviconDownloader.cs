@@ -69,13 +69,20 @@ namespace YetAnotherFaviconDownloader
                 // Try to find a valid image
                 foreach (Uri link in links)
                 {
-                    // Download file
-                    byte[] data = DownloadAsset(link);
-
-                    // Check if the data is a valid image
-                    if (IsValidImage(data))
+                    try
                     {
-                        return data;
+                        // Download file
+                        byte[] data = DownloadAsset(link);
+
+                        // Check if the data is a valid image
+                        if (IsValidImage(data))
+                        {
+                            return data;
+                        }
+                    }
+                    catch (WebException)
+                    {
+                        // ignore the exception and try the next resource
                     }
                 }
             }
