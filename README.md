@@ -34,11 +34,11 @@ _Yet Another Favicon Downloader_ (_YAFD_ for short) is a plugin for _KeePass_ 2.
 
 ### Linux
 
-- _Mono_ 2.10.8 or newer.
+- _Mono_ 4.8.0 or newer.
 
 ### Windows
 
-- _.NET Framework_ 2.0 or newer.
+- _.NET Framework_ 4.5 or newer.
 
 ## Installation
 

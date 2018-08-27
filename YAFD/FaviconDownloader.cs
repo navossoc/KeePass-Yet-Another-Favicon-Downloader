@@ -50,6 +50,9 @@ namespace YetAnotherFaviconDownloader
 
             // <link> tags with href attribute
             hrefAttribute = new Regex(@"href\s*=\s*((?<q>'|"")(?<url>.*?)(\k<q>|>)|(?<url>.*?)(\s+|>))", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.Singleline);
+
+            // Enable TLS 1.1 and TLS 1.2.
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
         }
 
         public byte[] GetIcon(string url)
