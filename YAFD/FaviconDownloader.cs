@@ -22,6 +22,9 @@ namespace YetAnotherFaviconDownloader
         private static readonly Regex headTag, commentTag, scriptStyleTag;
         private static readonly Regex linkTags, relAttribute, hrefAttribute;
 
+        // URI after redirection
+        private Uri responseUri;
+
         static FaviconDownloader()
         {
             // Data URI schema
@@ -64,7 +67,7 @@ namespace YetAnotherFaviconDownloader
                 // Download
                 string page = DownloadPage(address);
                 string head = StripPage(page);
-                IEnumerable<Uri> links = GetIconsUrl(address, head);
+                IEnumerable<Uri> links = GetIconsUrl(responseUri, head);
 
                 // Try to find a valid image
                 foreach (Uri link in links)
@@ -125,6 +128,23 @@ namespace YetAnotherFaviconDownloader
             request.UserAgent = userAgent;
 
             return request;
+        }
+
+        protected override WebResponse GetWebResponse(WebRequest request)
+        {
+            WebResponse response = null;
+            try
+            {
+                response = base.GetWebResponse(request);
+                // keeps track about base path 
+                responseUri = response.ResponseUri;
+            }
+            catch (WebException)
+            {
+                // not handling here
+            }
+
+            return response;
         }
 
         private byte[] DownloadAsset(Uri address)
