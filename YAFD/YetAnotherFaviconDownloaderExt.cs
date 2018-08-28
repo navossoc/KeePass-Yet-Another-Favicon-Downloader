@@ -54,6 +54,7 @@ namespace YetAnotherFaviconDownloader
 
         // YAFD SubItems
         private ToolStripMenuItem toolsSubItemsPrefixURLsItem;
+        private ToolStripMenuItem toolsSubItemsTitleFieldItem;
 
         public override bool Initialize(IPluginHost host)
         {
@@ -95,12 +96,17 @@ namespace YetAnotherFaviconDownloader
             toolsSubItemsPrefixURLsItem = new ToolStripMenuItem("Automatic prefix URLs with http://", null, PrefixURLsMenu_Click);  // TODO: i18n?
             toolsSubItemsPrefixURLsItem.Checked = Config.GetAutomaticPrefixURLs();
 
+            // Use title field if URL field is empty
+            toolsSubItemsTitleFieldItem = new ToolStripMenuItem("Use title field if URL field is empty", null, TitleFieldMenu_Click);  // TODO: i18n?
+            toolsSubItemsTitleFieldItem.Checked = Config.GetUseTitleField();
+
             // Add Tools menu items
             toolsMenuSeparator = new ToolStripSeparator();
 
             toolsMenuDropDownItems = new ToolStripMenuItem[]
             {
                 toolsSubItemsPrefixURLsItem,
+                toolsSubItemsTitleFieldItem,
 #if DEBUG
                 new ToolStripMenuItem("Reset Icons", null, ResetIconsMenu_Click)
 #endif
@@ -186,6 +192,15 @@ namespace YetAnotherFaviconDownloader
             menu.Checked = !menu.Checked;
 
             Config.SetAutomaticPrefixURLs(menu.Checked);
+        }
+
+        private void TitleFieldMenu_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem menu = sender as ToolStripMenuItem;
+
+            menu.Checked = !menu.Checked;
+
+            Config.SetUseTitleField(menu.Checked);
         }
 
 #if DEBUG

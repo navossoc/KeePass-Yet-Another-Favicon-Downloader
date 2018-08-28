@@ -99,7 +99,11 @@ namespace YetAnotherFaviconDownloader
 
                             if (url == string.Empty)
                             {
-                                url = entry.Strings.ReadSafe(PwDefs.TitleField);
+                                // If the user wants to use the title field, let's give it a try
+                                if (YetAnotherFaviconDownloaderExt.Config.GetUseTitleField())
+                                {
+                                    url = entry.Strings.ReadSafe(PwDefs.TitleField);
+                                }
                             }
 
                             // Empty URL field

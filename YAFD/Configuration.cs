@@ -17,6 +17,12 @@ namespace YetAnotherFaviconDownloader
         private const string automaticPrefixURLs = pluginName + "PrefixURLs";
         private bool? m_automaticPrefixURLs = null;
 
+        /// <summary>
+        /// Use title field if URL field is empty setting
+        /// </summary>
+        private const string useTitleField = pluginName + "TitleField";
+        private bool? m_useTitleField = null;
+
         public Configuration(AceCustomConfig aceCustomConfig)
         {
             config = aceCustomConfig;
@@ -36,6 +42,22 @@ namespace YetAnotherFaviconDownloader
         {
             m_automaticPrefixURLs = value;
             config.SetBool(automaticPrefixURLs, value);
+        }
+
+        public bool GetUseTitleField()
+        {
+            if (!m_useTitleField.HasValue)
+            {
+                m_useTitleField = config.GetBool(useTitleField, false);
+            }
+
+            return m_useTitleField.Value;
+        }
+
+        public void SetUseTitleField(bool value)
+        {
+            m_useTitleField = value;
+            config.SetBool(useTitleField, value);
         }
     }
 }
