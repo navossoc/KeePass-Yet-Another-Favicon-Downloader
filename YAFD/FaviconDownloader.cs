@@ -297,7 +297,7 @@ namespace YetAnotherFaviconDownloader
             foreach (Match linkTag in linkTags.Matches(html))
             {
                 // Checks if it has the rel icon attribute
-                string linkHtml = linkTag.ToString();
+                string linkHtml = linkTag.Value;
                 if (relAttribute.IsMatch(linkHtml))
                 {
                     // Extract href attribute value

@@ -187,7 +187,7 @@ namespace YetAnotherFaviconDownloader
 
             // Progress 100%
             ReportProgress(progress);
-            status = String.Format("YAFD: Success: {0} / Not Found: {1} / Error: {2}.", progress.Success, progress.NotFound, progress.Error);
+            status = string.Format("YAFD: Success: {0} / Not Found: {1} / Error: {2}.", progress.Success, progress.NotFound, progress.Error);
 
             // Prevents inserting duplicate icons
             MergeCustomIcons(icons);
@@ -202,7 +202,7 @@ namespace YetAnotherFaviconDownloader
         private void ReportProgress(ProgressInfo progress)
         {
             logger.SetProgress((uint)progress.Percent);
-            logger.SetText(String.Format("YAFD: Success: {0} / Not Found: {1} / Error: {2} / Remaining: {3}", progress.Success, progress.NotFound, progress.Error, progress.Remaining), LogStatusType.Info);
+            logger.SetText(string.Format("YAFD: Success: {0} / Not Found: {1} / Error: {2} / Remaining: {3}", progress.Success, progress.NotFound, progress.Error, progress.Remaining), LogStatusType.Info);
         }
 
         private void MergeCustomIcons(PwCustomIcon[] icons)
