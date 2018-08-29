@@ -56,7 +56,7 @@ Select one or more entries and click _Download Favicons_ to download the _favico
 
 ---
 
-You can also select one group and click _Download Favicons_ to download _favicons_ for all entries on this specific group.
+You can also select one group and click _Download Favicons_ to download _favicons_ for all entries in this group and its subgroups.
 
 ![Group Context Menu](docs/images/group-context-menu.gif)
 

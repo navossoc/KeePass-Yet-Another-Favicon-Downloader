@@ -84,7 +84,7 @@ namespace YetAnotherFaviconDownloader
 
             // Add Group Context menu items
             groupSeparator = new ToolStripSeparator();
-            groupDownloadFaviconsItem = new ToolStripMenuItem("Download Favicons", menuImage, DownloadFaviconsGroup_Click);
+            groupDownloadFaviconsItem = new ToolStripMenuItem("Download Favicons (recursively)", menuImage, DownloadFaviconsGroup_Click);
             pluginHost.MainWindow.GroupContextMenu.Items.Add(groupSeparator);
             pluginHost.MainWindow.GroupContextMenu.Items.Add(groupDownloadFaviconsItem);
 
@@ -172,8 +172,7 @@ namespace YetAnotherFaviconDownloader
             }
 
             // Get all entries from the group
-            bool subEntries = KeePass.Program.Config.MainWindow.ShowEntriesOfSubGroups;
-            PwObjectList<PwEntry> entriesInGroup = group.GetEntries(subEntries);
+            PwObjectList<PwEntry> entriesInGroup = group.GetEntries(true);
             if (entriesInGroup == null || entriesInGroup.UCount == 0)
             {
                 Util.Log("No entries in group");
