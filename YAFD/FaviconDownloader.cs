@@ -19,7 +19,7 @@ namespace YetAnotherFaviconDownloader
 
         // Regular expressions
         private static readonly Regex dataSchema, httpSchema;
-        private static readonly Regex headTag, commentTag, scriptStyleTag;
+        private static readonly Regex headTag, baseTag, commentTag, scriptStyleTag;
         private static readonly Regex linkTags, relAttribute, hrefAttribute;
 
         // URI after redirection
@@ -41,6 +41,9 @@ namespace YetAnotherFaviconDownloader
 
             // <script> or <style> tags
             scriptStyleTag = new Regex(@"<(script|style)\b.*?>.*?</\1>", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline);
+
+            // <base> tags
+            baseTag = new Regex(@"<base\b.*?>", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline);
 
             // <link> tags
             linkTags = new Regex(@"<link\b.*?>", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline);
@@ -262,6 +265,29 @@ namespace YetAnotherFaviconDownloader
 
         private IEnumerable<Uri> GetIconsUrl(Uri entryUrl, string html)
         {
+            // Extract <base> tag
+            Match match = baseTag.Match(html);
+            if (match.Success)
+            {
+                string baseHtml = match.Value;
+
+                // Extract href attribute value
+                Match hrefHtml = hrefAttribute.Match(baseHtml);
+                if (hrefHtml.Success)
+                {
+                    string href = hrefHtml.Groups["url"].Value;
+
+                    // Make a valid URL
+                    Uri baseUrl;
+                    if (NormalizeHref(entryUrl, href, out baseUrl))
+                    {
+                        entryUrl = baseUrl;
+                    }
+                }
+            }
+
+            // TODO: refactor code
+
             // List of possible icons
             List<Uri> urls = new List<Uri>();
 
