@@ -15,7 +15,7 @@ namespace YetAnotherFaviconDownloader
         private static IWebProxy _proxy;
         public static new IWebProxy Proxy { get { return _proxy; } set { _proxy = value; } }
         // User Agent
-        private static readonly string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36";
+        private static readonly string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36";
 
         // Regular expressions
         private static readonly Regex dataSchema, httpSchema;
@@ -122,6 +122,7 @@ namespace YetAnotherFaviconDownloader
             // Set up timeout values (1/5 of the default values)
             request.Timeout = 20 * 1000;
             request.ReadWriteTimeout = 60 * 1000;
+            request.ContinueTimeout = 1000;
 
             // Follow redirection responses with an HTTP status code from 300 to 399
             request.AllowAutoRedirect = true;
@@ -132,6 +133,11 @@ namespace YetAnotherFaviconDownloader
 
             // Sets a fake user agent
             request.UserAgent = userAgent;
+
+            // Set up additional headers (to looks more like a real browser)
+            request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8";
+            request.Headers.Add(HttpRequestHeader.AcceptLanguage, "en-US,en;q=0.9");
+            request.AutomaticDecompression |= DecompressionMethods.GZip | DecompressionMethods.Deflate; // Accept-Encoding
 
             return request;
         }
