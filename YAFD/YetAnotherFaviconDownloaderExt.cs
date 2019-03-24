@@ -78,13 +78,13 @@ namespace YetAnotherFaviconDownloader
 
             // Add Entry Context menu items
             entrySeparator = new ToolStripSeparator();
-            entryDownloadFaviconsItem = new ToolStripMenuItem("Download Favicons", menuImage, DownloadFaviconsEntry_Click);
+            entryDownloadFaviconsItem = new ToolStripMenuItem("Download &Favicons", menuImage, DownloadFaviconsEntry_Click);
             pluginHost.MainWindow.EntryContextMenu.Items.Add(entrySeparator);
             pluginHost.MainWindow.EntryContextMenu.Items.Add(entryDownloadFaviconsItem);
 
             // Add Group Context menu items
             groupSeparator = new ToolStripSeparator();
-            groupDownloadFaviconsItem = new ToolStripMenuItem("Download Favicons (recursively)", menuImage, DownloadFaviconsGroup_Click);
+            groupDownloadFaviconsItem = new ToolStripMenuItem("Download Fa&vicons (recursively)", menuImage, DownloadFaviconsGroup_Click);
             pluginHost.MainWindow.GroupContextMenu.Items.Add(groupSeparator);
             pluginHost.MainWindow.GroupContextMenu.Items.Add(groupDownloadFaviconsItem);
 
