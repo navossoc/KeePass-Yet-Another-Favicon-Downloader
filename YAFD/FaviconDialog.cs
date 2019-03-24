@@ -16,6 +16,7 @@ namespace YetAnotherFaviconDownloader
         private readonly BackgroundWorker bgWorker;
         private readonly IStatusLogger logger;
 
+        private PwEntry[] entries;
         private string status;
 
         private class ProgressInfo
@@ -61,14 +62,12 @@ namespace YetAnotherFaviconDownloader
 
         public void Run(PwEntry[] entries)
         {
-            bgWorker.RunWorkerAsync(entries);
+            this.entries = entries;
+            bgWorker.RunWorkerAsync();
         }
 
         private void BgWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            BackgroundWorker worker = sender as BackgroundWorker;
-            PwEntry[] entries = e.Argument as PwEntry[];
-
             // Progress information
             ProgressInfo progress = new ProgressInfo(entries.Length);
 
@@ -137,9 +136,6 @@ namespace YetAnotherFaviconDownloader
 
                                         // Associate with this entry
                                         entry.CustomIconUuid = uuid;
-
-                                        // Save it
-                                        entry.Touch(true, false);
 
                                         // Icon downloaded with success
                                         Interlocked.Increment(ref progress.Success);
@@ -251,6 +247,13 @@ namespace YetAnotherFaviconDownloader
             else
             {
                 Util.Log("Done");
+            }
+
+            // Update entries (avoid cross-thread operation with other plugins)
+            foreach (PwEntry entry in entries)
+            {
+                // Save it
+                entry.Touch(true, false);
             }
 
             // Unblock UI
