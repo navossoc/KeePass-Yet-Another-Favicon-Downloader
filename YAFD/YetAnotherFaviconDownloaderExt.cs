@@ -95,6 +95,10 @@ namespace YetAnotherFaviconDownloader
             // Automatic prefix URLs with http://
             toolsSubItemsPrefixURLsItem = new ToolStripMenuItem("Automatic prefix URLs with http://", null, PrefixURLsMenu_Click);  // TODO: i18n?
             toolsSubItemsPrefixURLsItem.Checked = Config.GetAutomaticPrefixURLs();
+            
+            // Automatic prefix URLs with https://
+            toolsSubItemsHttpsPrefixURLsItem = new ToolStripMenuItem("Automatic prefix URLs with https://", null, HttpsPrefixURLsMenu_Click);  // TODO: i18n?
+            toolsSubItemsHttpsPrefixURLsItem.Checked = Config.GetAutomaticHttpsPrefixURLs();            
 
             // Use title field if URL field is empty
             toolsSubItemsTitleFieldItem = new ToolStripMenuItem("Use title field if URL field is empty", null, TitleFieldMenu_Click);  // TODO: i18n?
@@ -192,6 +196,15 @@ namespace YetAnotherFaviconDownloader
 
             Config.SetAutomaticPrefixURLs(menu.Checked);
         }
+        
+        private void HttpsPrefixURLsMenu_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem menu = sender as ToolStripMenuItem;
+
+            menu.Checked = !menu.Checked;
+
+            Config.SetAutomatiHtppsPrefixURLs(menu.Checked);
+        }        
 
         private void TitleFieldMenu_Click(object sender, EventArgs e)
         {
