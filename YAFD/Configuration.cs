@@ -16,7 +16,13 @@ namespace YetAnotherFaviconDownloader
         /// </summary>
         private const string automaticPrefixURLs = pluginName + "PrefixURLs";
         private bool? m_automaticPrefixURLs = null;
-
+		
+        /// <summary>
+        /// Automatic prefix URLs with https:// setting
+        /// </summary>
+        private const string automaticHttpsPrefixURLs = pluginName + "HttpsPrefixURLs";
+        private bool? m_automaticHttpsPrefixURLs = null;		
+		
         /// <summary>
         /// Use title field if URL field is empty setting
         /// </summary>
@@ -42,6 +48,22 @@ namespace YetAnotherFaviconDownloader
         {
             m_automaticPrefixURLs = value;
             config.SetBool(automaticPrefixURLs, value);
+        }
+		
+		public bool GetAutomaticHttpsPrefixURLs()
+        {
+            if (!m_automaticHttpsPrefixURLs.HasValue)
+            {
+                m_automaticHttpsPrefixURLs = config.GetBool(automaticHttpsPrefixURLs, false);
+            }
+
+            return m_automaticHttpsPrefixURLs.Value;
+        }
+
+        public void SetAutomaticHttpsPrefixURLs(bool value)
+        {
+            m_automaticHttpsPrefixURLs = value;
+            config.SetBool(automaticHttpsPrefixURLs, value);
         }
 
         public bool GetUseTitleField()
