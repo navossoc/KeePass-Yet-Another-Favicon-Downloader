@@ -201,14 +201,24 @@ namespace YetAnotherFaviconDownloader
         {
             if (!httpSchema.IsMatch(url))
             {
-                // If the user doesn't want to add the prefix, there is nothing I can do about
-                if (!YetAnotherFaviconDownloaderExt.Config.GetAutomaticPrefixURLs())
+                // The given url needs to be patched
+                if (!YetAnotherFaviconDownloaderExt.Config.GetAutomaticPrefixURLs() && 
+					!YetAnotherFaviconDownloaderExt.Config.GetAutomaticHttpsPrefixURLs())
                 {
+					// If the user doesn't want to add the prefix, there is nothing I can do about
                     return false;
                 }
+				else if (YetAnotherFaviconDownloaderExt.Config.GetAutomaticPrefixURLs())
+				{   
+					// Prefix the URL with a valid http schema
+					url = "http://" + url;
+				}
+				else if (YetAnotherFaviconDownloaderExt.Config.GetAutomaticHttpsPrefixURLs())
+				{   
+					// Prefix the URL with a valid http schema
+					url = "https://" + url;
+				}
 
-                // Prefix the URL with a valid schema
-                url = "http://" + url;
             }
 
             // TODO: this still can be improved to test https://
