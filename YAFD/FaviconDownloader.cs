@@ -60,12 +60,16 @@ namespace YetAnotherFaviconDownloader
 
         public byte[] GetIcon(string url)
         {
+            // We prefer https first (just to preserve the original link)
+            string origURL = url;
+
             // Check if the URL could be a site address
-            if (!IsValidURL(ref url))
+            if (!IsValidURL(ref url, "https://"))
             {
                 throw new FaviconDownloaderException(FaviconDownloaderExceptionStatus.NotFound);
             }
 
+        retry_http:
             try
             {
                 Uri address = new Uri(url);
@@ -97,6 +101,19 @@ namespace YetAnotherFaviconDownloader
             }
             catch (WebException ex)
             {
+                // Retry with HTTP prefix (*only* if user has automatic prefix enabled)
+                if (!httpSchema.IsMatch(origURL) && url.StartsWith("https://"))
+                {
+                    // Restore original URL
+                    url = origURL;
+
+                    // Change the scheme from HTTPS to HTTP
+                    if (IsValidURL(ref url, "http://"))
+                    {
+                        goto retry_http;
+                    }
+                }
+
                 HttpWebResponse response = ex.Response as HttpWebResponse;
                 if (response != null && response.StatusCode == HttpStatusCode.NotFound)
                 {
@@ -197,7 +214,7 @@ namespace YetAnotherFaviconDownloader
             return null;
         }
 
-        private bool IsValidURL(ref string url)
+        private bool IsValidURL(ref string url, string prefix)
         {
             if (!httpSchema.IsMatch(url))
             {
@@ -208,10 +225,10 @@ namespace YetAnotherFaviconDownloader
                 }
 
                 // Prefix the URL with a valid schema
-                url = "http://" + url;
+                string old = url;
+                url = prefix + url;
+                Util.Log("AutoPrefix: {0} => {1}", old, url);
             }
-
-            // TODO: this still can be improved to test https://
 
             Uri result;
             return Uri.TryCreate(url, UriKind.Absolute, out result);

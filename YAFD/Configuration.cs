@@ -12,7 +12,7 @@ namespace YetAnotherFaviconDownloader
         private const string pluginName = "YetAnotherFaviconDownloader.";
 
         /// <summary>
-        /// Automatic prefix URLs with http:// setting
+        /// Automatic prefix URLs with http(s):// setting (https first, then http)
         /// </summary>
         private const string automaticPrefixURLs = pluginName + "PrefixURLs";
         private bool? m_automaticPrefixURLs = null;

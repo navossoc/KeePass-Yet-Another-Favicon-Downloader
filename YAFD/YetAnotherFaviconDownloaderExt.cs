@@ -92,8 +92,8 @@ namespace YetAnotherFaviconDownloader
 
             // Tools -> YAFD -> SubItems
 
-            // Automatic prefix URLs with http://
-            toolsSubItemsPrefixURLsItem = new ToolStripMenuItem("Automatic prefix URLs with http://", null, PrefixURLsMenu_Click);  // TODO: i18n?
+            // Automatic prefix URLs with http(s)://
+            toolsSubItemsPrefixURLsItem = new ToolStripMenuItem("Automatic prefix URLs with http(s)://", null, PrefixURLsMenu_Click);  // TODO: i18n?
             toolsSubItemsPrefixURLsItem.Checked = Config.GetAutomaticPrefixURLs();
 
             // Use title field if URL field is empty
