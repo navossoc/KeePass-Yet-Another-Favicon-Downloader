@@ -134,8 +134,17 @@ namespace YetAnotherFaviconDownloader
                                             icons[i] = new PwCustomIcon(uuid, data);
                                         }
 
-                                        // Associate with this entry
-                                        entry.CustomIconUuid = uuid;
+                                        // Check if icon is the same
+                                        if (entry.CustomIconUuid.Equals(uuid))
+                                        {
+                                            // Avoid updating the entry
+                                            entries[i] = null;
+                                        }
+                                        else
+                                        {
+                                            // Associate with this entry
+                                            entry.CustomIconUuid = uuid;
+                                        }
 
                                         // Icon downloaded with success
                                         Interlocked.Increment(ref progress.Success);
@@ -154,6 +163,9 @@ namespace YetAnotherFaviconDownloader
                                             // Some other error (network, etc)
                                             Interlocked.Increment(ref progress.Error);
                                         }
+
+                                        // Avoid updating the entry
+                                        entries[i] = null;
                                     }
                                 }
                             }
@@ -252,6 +264,9 @@ namespace YetAnotherFaviconDownloader
             // Update entries (avoid cross-thread operation with other plugins)
             foreach (PwEntry entry in entries)
             {
+                // You can't touch this (oh-oh oh oh oh-oh-oh)
+                if (entry == null) continue;
+
                 // Save it
                 entry.Touch(true, false);
             }
