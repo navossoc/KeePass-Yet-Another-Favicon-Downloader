@@ -269,7 +269,6 @@ namespace YetAnotherFaviconDownloader
 
                 // Save it
                 entry.Touch(YetAnotherFaviconDownloaderExt.Config.GetUpdateLastModified(), false);
-                
             }
 
             // Unblock UI

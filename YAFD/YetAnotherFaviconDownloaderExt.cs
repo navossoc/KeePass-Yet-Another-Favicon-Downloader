@@ -102,7 +102,7 @@ namespace YetAnotherFaviconDownloader
             toolsSubItemsTitleFieldItem.Checked = Config.GetUseTitleField();
 
             // Update last modified date when adding/updating icons
-            toolsSubItemsUpdateModifiedItem = new ToolStripMenuItem("Update entry's last modification time when adding/updating icons", null, LastModifiedMenu_Click);  // TODO: i18n?
+            toolsSubItemsUpdateModifiedItem = new ToolStripMenuItem("Update entry last modification time", null, LastModifiedMenu_Click);  // TODO: i18n?
             toolsSubItemsUpdateModifiedItem.Checked = Config.GetUpdateLastModified();
 
             // Add Tools menu items
