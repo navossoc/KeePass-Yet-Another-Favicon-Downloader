@@ -55,6 +55,7 @@ namespace YetAnotherFaviconDownloader
         // YAFD SubItems
         private ToolStripMenuItem toolsSubItemsPrefixURLsItem;
         private ToolStripMenuItem toolsSubItemsTitleFieldItem;
+        private ToolStripMenuItem toolsSubItemsUpdateModifiedItem;
 
         public override bool Initialize(IPluginHost host)
         {
@@ -100,6 +101,10 @@ namespace YetAnotherFaviconDownloader
             toolsSubItemsTitleFieldItem = new ToolStripMenuItem("Use title field if URL field is empty", null, TitleFieldMenu_Click);  // TODO: i18n?
             toolsSubItemsTitleFieldItem.Checked = Config.GetUseTitleField();
 
+            // Update last modified date when adding/updating icons
+            toolsSubItemsUpdateModifiedItem = new ToolStripMenuItem("Update entry's last modification time when adding/updating icons", null, LastModifiedMenu_Click);  // TODO: i18n?
+            toolsSubItemsUpdateModifiedItem.Checked = Config.GetUpdateLastModified();
+
             // Add Tools menu items
             toolsMenuSeparator = new ToolStripSeparator();
 
@@ -107,6 +112,7 @@ namespace YetAnotherFaviconDownloader
             {
                 toolsSubItemsPrefixURLsItem,
                 toolsSubItemsTitleFieldItem,
+                toolsSubItemsUpdateModifiedItem,
 #if DEBUG
                 new ToolStripMenuItem("Reset Icons", null, ResetIconsMenu_Click)
 #endif
@@ -200,6 +206,14 @@ namespace YetAnotherFaviconDownloader
             menu.Checked = !menu.Checked;
 
             Config.SetUseTitleField(menu.Checked);
+        }
+        private void LastModifiedMenu_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem menu = sender as ToolStripMenuItem;
+
+            menu.Checked = !menu.Checked;
+
+            Config.SetUpdateLastModified(menu.Checked);
         }
 
 #if DEBUG

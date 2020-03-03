@@ -268,7 +268,8 @@ namespace YetAnotherFaviconDownloader
                 if (entry == null) continue;
 
                 // Save it
-                entry.Touch(true, false);
+                entry.Touch(YetAnotherFaviconDownloaderExt.Config.GetUpdateLastModified(), false);
+                
             }
 
             // Unblock UI

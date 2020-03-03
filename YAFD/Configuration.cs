@@ -23,6 +23,12 @@ namespace YetAnotherFaviconDownloader
         private const string useTitleField = pluginName + "TitleField";
         private bool? m_useTitleField = null;
 
+        /// <summary>
+        /// Update last modified date when adding/updating icons
+        /// </summary>
+        private const string updateLastModified = pluginName + "UpdateLastModified";
+        private bool? m_updateLastModified = null;
+
         public Configuration(AceCustomConfig aceCustomConfig)
         {
             config = aceCustomConfig;
@@ -58,6 +64,22 @@ namespace YetAnotherFaviconDownloader
         {
             m_useTitleField = value;
             config.SetBool(useTitleField, value);
+        }
+
+        public bool GetUpdateLastModified()
+        {
+            if (!m_updateLastModified.HasValue)
+            {
+                m_updateLastModified = config.GetBool(updateLastModified, true);
+            }
+
+            return m_updateLastModified.Value;
+        }
+
+        public void SetUpdateLastModified(bool value)
+        {
+            m_updateLastModified = value;
+            config.SetBool(updateLastModified, value);
         }
     }
 }
