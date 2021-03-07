@@ -24,6 +24,8 @@ namespace YetAnotherFaviconDownloader
 
         // URI after redirection
         private Uri responseUri;
+        private CookieContainer cookieContainer;
+
 
         static FaviconDownloader()
         {
@@ -60,6 +62,7 @@ namespace YetAnotherFaviconDownloader
 
         public byte[] GetIcon(string url)
         {
+            cookieContainer = new CookieContainer();
             // We prefer https first (just to preserve the original link)
             string origURL = url;
 
@@ -158,7 +161,7 @@ namespace YetAnotherFaviconDownloader
             request.MaximumAutomaticRedirections = 10;
 
             // Sets the cookies associated with the request (security issue?)
-            request.CookieContainer = new CookieContainer();
+            request.CookieContainer = cookieContainer;
 
             // Sets a fake user agent
             request.UserAgent = userAgent;
