@@ -22,5 +22,21 @@ namespace Tests
                 Assert.IsNotNull(data);
             }
         }
+
+        [TestMethod]
+        public void TestTryDomainRootFolder()
+        {
+            // Eelke76
+            // https://github.com/navossoc/KeePass-Yet-Another-Favicon-Downloader/pull/54
+
+            var url = "https://www.asnbank.nl/onlinebankieren";
+
+            using (FaviconDownloader fd = new FaviconDownloader())
+            {
+                // Download favicon
+                byte[] data = fd.GetIcon(url);
+                Assert.IsNotNull(data);
+            }
+        }
     }
 }

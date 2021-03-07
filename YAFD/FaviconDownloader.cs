@@ -104,6 +104,16 @@ namespace YetAnotherFaviconDownloader
                         // ignore the exception and try the next resource
                     }
                 }
+
+                // No valid image found
+
+                // Inspect the URL if it has a path or query the problem might be that
+                if (address.PathAndQuery != "/")
+                {
+                    // Let's try just without a path and query
+                    url = address.GetLeftPart(UriPartial.Authority);
+                    goto retry_http;
+                }
             }
             catch (WebException ex)
             {
