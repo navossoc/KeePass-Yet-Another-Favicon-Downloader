@@ -24,6 +24,7 @@ namespace YetAnotherFaviconDownloader
 
         // URI after redirection
         private Uri responseUri;
+        private CookieContainer cookieContainer;
 
         static FaviconDownloader()
         {
@@ -56,6 +57,11 @@ namespace YetAnotherFaviconDownloader
 
             // Enable TLS 1.1 and TLS 1.2.
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+        }
+
+        public FaviconDownloader()
+        {
+            cookieContainer = new CookieContainer();
         }
 
         public byte[] GetIcon(string url)
@@ -145,8 +151,8 @@ namespace YetAnotherFaviconDownloader
             request.AllowAutoRedirect = true;
             request.MaximumAutomaticRedirections = 10;
 
-            // Sets the cookies associated with the request (security issue?)
-            request.CookieContainer = new CookieContainer();
+            // Sets the cookies associated with the request
+            request.CookieContainer = cookieContainer;
 
             // Sets a fake user agent
             request.UserAgent = userAgent;
