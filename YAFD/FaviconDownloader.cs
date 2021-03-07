@@ -98,6 +98,18 @@ namespace YetAnotherFaviconDownloader
                         // ignore the exception and try the next resource
                     }
                 }
+                // no valid image found, inspect the URL if it has a path and or query the problem might be that
+                // we are retrieving a login page instead of the initial landing page.
+                // Lets try just without a path or query
+                if (!string.IsNullOrEmpty(address.PathAndQuery))
+                {
+                    var new_url = address.GetLeftPart(UriPartial.Authority) + "/";
+                    if (new_url != url)
+                    { 
+                        url = new_url;
+                        goto retry_http;
+                    }
+                }
             }
             catch (WebException ex)
             {
