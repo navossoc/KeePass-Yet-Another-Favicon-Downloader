@@ -1,0 +1,18 @@
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install keepass2
+        run: |
+          sudo add-apt-repository ppa:ubuntuhandbook1/keepass2
+          sudo apt update -qq
+          sudo apt install -qy keepass2
+      - name: Build
+        run: |
+          $(which keepass2) --plgx-create YAFD --plgx-prereq-kp:2.34
+          mv YAFD.plgx YetAnotherFaviconDownloader.plgx
+      - uses: actions/upload-artifact@v2
+        with:
+          path: YetAnotherFaviconDownloader.plgx
