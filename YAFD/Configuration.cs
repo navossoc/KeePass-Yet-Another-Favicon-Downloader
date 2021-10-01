@@ -29,6 +29,12 @@ namespace YetAnotherFaviconDownloader
         private const string updateLastModified = pluginName + "UpdateLastModified";
         private bool? m_updateLastModified = null;
 
+        /// <summary>
+        /// Use Google S2 API to fetch 16x16 icons
+        /// </summary>
+        private const string useGoogleAPI = pluginName + "UseGoogleAPI";
+        private bool? m_useGoogleAPI = null;
+
         public Configuration(AceCustomConfig aceCustomConfig)
         {
             config = aceCustomConfig;
@@ -80,6 +86,22 @@ namespace YetAnotherFaviconDownloader
         {
             m_updateLastModified = value;
             config.SetBool(updateLastModified, value);
+        }
+
+        public bool GetUseGoogleAPI()
+        {
+            if (!m_useGoogleAPI.HasValue)
+            {
+                m_useGoogleAPI = config.GetBool(useGoogleAPI, true);
+            }
+
+            return m_useGoogleAPI.Value;
+        }
+
+        public void SetUseGoogleAPI(bool value)
+        {
+            m_useGoogleAPI = value;
+            config.SetBool(useGoogleAPI, value);
         }
     }
 }

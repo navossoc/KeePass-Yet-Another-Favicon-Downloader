@@ -69,6 +69,23 @@ namespace YetAnotherFaviconDownloader
                 throw new FaviconDownloaderException(FaviconDownloaderExceptionStatus.NotFound);
             }
 
+            if (YetAnotherFaviconDownloaderExt.Config.GetUseGoogleAPI()) {
+                Uri address = new Uri("https://www.google.com/s2/favicons?domain_url=" + new Uri(url).Host);
+
+                try {
+                    // Download file
+                    byte[] data = DownloadAsset(address);
+
+                    // Check if the data is a valid image
+                    if (IsValidImage(data)) {
+                        return data;
+                    }
+                } catch (WebException) {
+                    // ignore the exception and try the regular method
+                    // throw new FaviconDownloaderException(FaviconDownloaderExceptionStatus.NotFound);
+                }
+            }
+
         retry_http:
             try
             {

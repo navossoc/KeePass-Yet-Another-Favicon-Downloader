@@ -56,6 +56,7 @@ namespace YetAnotherFaviconDownloader
         private ToolStripMenuItem toolsSubItemsPrefixURLsItem;
         private ToolStripMenuItem toolsSubItemsTitleFieldItem;
         private ToolStripMenuItem toolsSubItemsUpdateModifiedItem;
+        private ToolStripMenuItem toolsSubItemsUseGoogleAPI;
 
         public override bool Initialize(IPluginHost host)
         {
@@ -105,6 +106,9 @@ namespace YetAnotherFaviconDownloader
             toolsSubItemsUpdateModifiedItem = new ToolStripMenuItem("Update entry last modification time", null, LastModifiedMenu_Click);  // TODO: i18n?
             toolsSubItemsUpdateModifiedItem.Checked = Config.GetUpdateLastModified();
 
+            toolsSubItemsUseGoogleAPI = new ToolStripMenuItem("Use Google S2 API to fetch 16x16 icons", null, UseGoogleAPIMenu_Click);  // TODO: i18n?
+            toolsSubItemsUseGoogleAPI.Checked = Config.GetUseGoogleAPI();
+
             // Add Tools menu items
             toolsMenuSeparator = new ToolStripSeparator();
 
@@ -113,6 +117,7 @@ namespace YetAnotherFaviconDownloader
                 toolsSubItemsPrefixURLsItem,
                 toolsSubItemsTitleFieldItem,
                 toolsSubItemsUpdateModifiedItem,
+                toolsSubItemsUseGoogleAPI,
 #if DEBUG
                 new ToolStripMenuItem("Reset Icons", null, ResetIconsMenu_Click)
 #endif
@@ -214,6 +219,13 @@ namespace YetAnotherFaviconDownloader
             menu.Checked = !menu.Checked;
 
             Config.SetUpdateLastModified(menu.Checked);
+        }
+        private void UseGoogleAPIMenu_Click(object sender, EventArgs e) {
+            ToolStripMenuItem menu = sender as ToolStripMenuItem;
+
+            menu.Checked = !menu.Checked;
+
+            Config.SetUseGoogleAPI(menu.Checked);
         }
 
 #if DEBUG
