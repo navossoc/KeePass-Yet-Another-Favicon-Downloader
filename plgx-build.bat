@@ -33,4 +33,5 @@ del "%SOURCE%\bin\Debug\%NAME%.*"
 copy "%CD%\%NAME%.plgx" "%SOURCE%\bin\Debug\%NAME%.plgx" /Y
 echo.
 
-pause
+if "%~1" == "" pause
+
