@@ -66,6 +66,34 @@ namespace YetAnotherFaviconDownloader
 
         public byte[] GetIcon(string url)
         {
+            // This is how this is supposed to work:
+
+            // 1. If a scheme is specified in the URL, we will use it for all requests, otherwise we will
+            // try to prefix the URL with https (if user option is enabled) and later fallback to http.
+
+            // 2. Try to simplify the URL striping the path and query.
+
+            // For example, given the following input:
+            // user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2
+
+            // Change to https scheme
+            // Scheme (https)
+            // 1a. https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2
+
+            // Strip path and query
+            // Host
+            // 2a. https://user:password@www.contoso.com:80/
+
+            // Fallback to http scheme
+            // Scheme (http)
+            // 1b. http://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2
+
+            // Strip path and query
+            // Host
+            // 2b. http://user:password@www.contoso.com:80/
+
+            ////////////////////////////////////////////////////////////////////////////////
+
             // We prefer https first (just to preserve the original link)
             string origURL = url;
 
@@ -75,7 +103,17 @@ namespace YetAnotherFaviconDownloader
                 throw new FaviconDownloaderException(FaviconDownloaderExceptionStatus.NotFound);
             }
 
+            int attemps = 0;
+
         retry_http:
+
+            // Just to avoid some weird looping
+            if (++attemps > 4)
+            {
+                throw new FaviconDownloaderException(FaviconDownloaderExceptionStatus.Error);
+            }
+            Util.Log("Attempt {0}: {1}", attemps, url);
+
             try
             {
                 Uri address = new Uri(url);
