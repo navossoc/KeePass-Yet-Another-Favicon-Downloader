@@ -26,6 +26,7 @@ _Yet Another Favicon Downloader_ (_YAFD_ for short) is a plugin for _KeePass_ 2.
   - Avoids duplicate icons (reuses custom icons already present in the database)
   - Download entries without a URL scheme (automatically prefix URLs with `http://`)
   - Download entries without a URL field (automatically uses Title field)
+  - - Automatically resize icons (scales down to 128x128 px)
 - Linux support (_experimental_)
 - Proxy support (respects _KeePass_ settings)
 - Modern support (supports TLS up to 1.3 on .NET 4.8)  

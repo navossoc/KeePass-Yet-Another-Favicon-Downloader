@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -152,8 +153,8 @@ namespace YetAnotherFaviconDownloader
                         // Download file
                         byte[] data = DownloadAsset(link);
 
-                        // Check if the data is a valid image
-                        if (IsValidImage(data))
+                        // Check if the data is a valid image and then try to resize it
+                        if (ResizeImage(ref data))
                         {
                             return data;
                         }
@@ -461,6 +462,68 @@ namespace YetAnotherFaviconDownloader
             }
 
             return false;
+        }
+
+        private bool ResizeImage(ref byte[] data)
+        {
+            // Invalid data
+            if (data == null)
+            {
+                return false;
+            }
+
+            // KeePassLib.PwCustomIcon
+            // Recommended maximum sizes, not obligatory
+            const int MaxWidth = 128;
+            const int MaxHeight = 128;
+
+            Image image;
+            try
+            {
+                image = GfxUtil.LoadImage(data);
+            }
+            catch (Exception)
+            {
+                // Invalid image format
+                return false;
+            }
+
+            // Checks if we need to resize
+            if (image.Width <= MaxWidth && image.Height <= MaxHeight)
+            {
+                // don't need to resize the image
+                // data = (original image)
+                return true;
+            }
+
+            // Try to resize the image to png
+            try
+            {
+                double ratioWidth = MaxWidth / (double)image.Width;
+                double ratioHeight = MaxHeight / (double)image.Height;
+
+                double ratioImage = Math.Min(ratioHeight, ratioWidth);
+                int h = (int)Math.Round(image.Height * ratioImage);
+                int w = (int)Math.Round(image.Width * ratioImage);
+
+                image = GfxUtil.ScaleImage(image, w, h);
+
+                using (var ms = new MemoryStream())
+                {
+                    image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+
+                    // If it's all ok
+                    // data = (resized image)
+                    data = ms.ToArray();
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                // Can't resize image
+                // data = (original image)
+                return true;
+            }
         }
     }
 }
