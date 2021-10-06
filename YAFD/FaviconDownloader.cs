@@ -474,8 +474,11 @@ namespace YetAnotherFaviconDownloader
 
             // KeePassLib.PwCustomIcon
             // Recommended maximum sizes, not obligatory
-            const int MaxWidth = 128;
-            const int MaxHeight = 128;
+            //const int MaxWidth = 128;
+            //const int MaxHeight = 128;
+
+            int MaxWidth, MaxHeight;
+            MaxWidth = MaxHeight = YetAnotherFaviconDownloaderExt.Config.GetMaximumIconSize();
 
             Image image;
             try

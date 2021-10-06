@@ -3,6 +3,7 @@ using KeePass.Util;
 using KeePassLib;
 using KeePassLib.Collections;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
@@ -56,6 +57,13 @@ namespace YetAnotherFaviconDownloader
         private ToolStripMenuItem toolsSubItemsPrefixURLsItem;
         private ToolStripMenuItem toolsSubItemsTitleFieldItem;
         private ToolStripMenuItem toolsSubItemsUpdateModifiedItem;
+        private ToolStripMenuItem toolsSubItemsMaximumIconSizeItems;
+
+        // YAFD Icon SubItems
+        const int iconSizeMin = 16;
+        const int iconSizeMax = 128;
+        const int iconSizeIncr = 16;
+        private List<ToolStripMenuItem> toolsMaxIconSizeSubItems;
 
         public override bool Initialize(IPluginHost host)
         {
@@ -105,6 +113,27 @@ namespace YetAnotherFaviconDownloader
             toolsSubItemsUpdateModifiedItem = new ToolStripMenuItem("Update entry last modification time", null, LastModifiedMenu_Click);  // TODO: i18n?
             toolsSubItemsUpdateModifiedItem.Checked = Config.GetUpdateLastModified();
 
+            // Tools -> YAFD -> Maximum icon size -> SubItems
+            toolsMaxIconSizeSubItems = new List<ToolStripMenuItem>();
+
+            // 16x16 ~ 128x128
+            for (int i = iconSizeMin; i <= iconSizeMax; i += iconSizeIncr)
+            {
+                var size = string.Format("{0}x{0} px", i);
+                var item = new ToolStripMenuItem(size, null, MaximumIconSize_Click);
+                toolsMaxIconSizeSubItems.Add(item);
+            }
+
+            int index = (Config.GetMaximumIconSize() / iconSizeIncr) - 1;
+            if (index >= 0 && index < toolsMaxIconSizeSubItems.Count)
+            {
+                toolsMaxIconSizeSubItems[index].Checked = true;
+            }
+
+            toolsSubItemsMaximumIconSizeItems = new ToolStripMenuItem("Maximum icon size", (Image)pluginHost.Resources.GetObject("B16x16_Edit"), toolsMaxIconSizeSubItems.ToArray());  // TODO: i18n?
+
+            //
+
             // Add Tools menu items
             toolsMenuSeparator = new ToolStripSeparator();
 
@@ -113,6 +142,7 @@ namespace YetAnotherFaviconDownloader
                 toolsSubItemsPrefixURLsItem,
                 toolsSubItemsTitleFieldItem,
                 toolsSubItemsUpdateModifiedItem,
+                toolsSubItemsMaximumIconSizeItems,
 #if DEBUG
                 new ToolStripMenuItem("Reset Icons", null, ResetIconsMenu_Click)
 #endif
@@ -214,6 +244,22 @@ namespace YetAnotherFaviconDownloader
             menu.Checked = !menu.Checked;
 
             Config.SetUpdateLastModified(menu.Checked);
+        }
+
+        private void MaximumIconSize_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem menu = sender as ToolStripMenuItem;
+
+            for (int i = 0; i < toolsMaxIconSizeSubItems.Count; i++)
+            {
+                toolsMaxIconSizeSubItems[i].Checked = false;
+
+                if (menu == toolsMaxIconSizeSubItems[i])
+                {
+                    menu.Checked = true;
+                    Config.SetMaximumIconSize((i + 1) * iconSizeIncr);
+                }
+            }
         }
 
 #if DEBUG

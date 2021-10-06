@@ -29,6 +29,12 @@ namespace YetAnotherFaviconDownloader
         private const string updateLastModified = pluginName + "UpdateLastModified";
         private bool? m_updateLastModified = null;
 
+        /// <summary>
+        /// Maximum icon size
+        /// </summary>
+        private const string maximumIconSize = pluginName + "MaximumIconSize";
+        private int? m_maximumIconSize = null;
+
         public Configuration(AceCustomConfig aceCustomConfig)
         {
             config = aceCustomConfig;
@@ -80,6 +86,23 @@ namespace YetAnotherFaviconDownloader
         {
             m_updateLastModified = value;
             config.SetBool(updateLastModified, value);
+        }
+
+        public int GetMaximumIconSize()
+        {
+            if (!m_maximumIconSize.HasValue)
+            {
+                // int is enough
+                m_maximumIconSize = (int)config.GetLong(maximumIconSize, 128);
+            }
+
+            return m_maximumIconSize.Value;
+        }
+
+        public void SetMaximumIconSize(int value)
+        {
+            m_maximumIconSize = value;
+            config.SetLong(maximumIconSize, value);
         }
     }
 }
