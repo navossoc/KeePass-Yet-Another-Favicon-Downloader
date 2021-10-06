@@ -55,8 +55,29 @@ namespace YetAnotherFaviconDownloader
             // <link> tags with href attribute
             hrefAttribute = new Regex(@"href\s*=\s*((?<q>'|"")(?<url>.*?)(\k<q>|>)|(?<url>.*?)(\s+|>))", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.Singleline);
 
-            // Enable TLS 1.1 and TLS 1.2.
-            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            // Enable TLS for newer .NET versions
+            // Copy and paste from KeePass 2.46 source
+            try
+            {
+                SecurityProtocolType spt = (SecurityProtocolType.Ssl3 |
+                    SecurityProtocolType.Tls);
+
+                // The flags Tls11 and Tls12 in SecurityProtocolType have been
+                // introduced in .NET 4.5 and must not be set when running under
+                // older .NET versions (otherwise an exception is thrown)
+                Type tSpt = typeof(SecurityProtocolType);
+                string[] vSpt = Enum.GetNames(tSpt);
+                foreach (string strSpt in vSpt)
+                {
+                    if (strSpt.Equals("Tls11", StrUtil.CaseIgnoreCmp) ||
+                        strSpt.Equals("Tls12", StrUtil.CaseIgnoreCmp) ||
+                        strSpt.Equals("Tls13", StrUtil.CaseIgnoreCmp))  // .NET 4.8
+                        spt |= (SecurityProtocolType)Enum.Parse(tSpt, strSpt, true);
+                }
+
+                ServicePointManager.SecurityProtocol = spt;
+            }
+            catch (Exception) { }
         }
 
         public FaviconDownloader()
