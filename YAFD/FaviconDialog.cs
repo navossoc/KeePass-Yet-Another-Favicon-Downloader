@@ -132,6 +132,29 @@ namespace YetAnotherFaviconDownloader
                                         {
                                             // Add icon
                                             icons[i] = new PwCustomIcon(uuid, data);
+
+                                            #region For KeePass 2.48+ only
+                                            if (PwDefs.FileVersion64 >= 0x0002003000000000UL)
+                                            {
+                                                var pwCustomIconType = icons[i].GetType();
+
+                                                // Name the icon
+                                                var nameProperty = pwCustomIconType.GetProperty("Name");
+                                                if (nameProperty != null)
+                                                {
+                                                    // Since the URL was valid, we just force a valid scheme prefix to be able to get the Host
+                                                    var host = fd.GetValidHost(url);
+                                                    nameProperty.SetValue(icons[i], "yafd-" + host);
+                                                }
+
+                                                // Update last modification time
+                                                var lastModificationTimeProperty = pwCustomIconType.GetProperty("LastModificationTime");
+                                                if (lastModificationTimeProperty != null)
+                                                {
+                                                    lastModificationTimeProperty.SetValue(icons[i], DateTime.UtcNow);
+                                                }
+                                            }
+                                            #endregion
                                         }
 
                                         // Check if icon is the same

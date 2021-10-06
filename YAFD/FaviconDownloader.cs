@@ -203,6 +203,23 @@ namespace YetAnotherFaviconDownloader
             // If there is no file available
             throw new FaviconDownloaderException(FaviconDownloaderExceptionStatus.NotFound);
         }
+        public string GetValidHost(string url)
+        {
+            if (!httpSchema.IsMatch(url))
+            {
+                // Prefix the URL with a valid schema
+                url = "http://" + url;
+            }
+
+            Uri result;
+            if (Uri.TryCreate(url, UriKind.Absolute, out result))
+            {
+                return result.Host;
+            }
+
+            // we shouldn't see this case
+            return "";
+        }
 
         protected override WebRequest GetWebRequest(Uri address)
         {
