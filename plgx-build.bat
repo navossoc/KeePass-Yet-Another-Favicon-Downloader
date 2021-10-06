@@ -4,7 +4,17 @@ CHDIR /D %CD%
 :: Configuration
 SET SOURCE=%CD%\YAFD
 SET TARGET=%CD%\publish
-SET KEEPASS="%ProgramFiles(x86)%\KeePass Password Safe 2\KeePass.exe"
+SET KEEPASS="%ProgramFiles%\KeePass Password Safe 2\KeePass.exe"
+
+REM Windows x86 (32 bits)
+if not exist %KEEPASS% (
+	SET KEEPASS="%ProgramFiles(x86)%\KeePass Password Safe 2\KeePass.exe"
+)
+
+REM Windows x64 (64 bits)
+if not exist %KEEPASS% (
+	SET KEEPASS="%ProgramW6432%\KeePass Password Safe 2\KeePass.exe"
+)
 
 SET NAME=YetAnotherFaviconDownloader
 
