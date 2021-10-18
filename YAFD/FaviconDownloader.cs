@@ -204,6 +204,55 @@ namespace YetAnotherFaviconDownloader
             // If there is no file available
             throw new FaviconDownloaderException(FaviconDownloaderExceptionStatus.NotFound);
         }
+
+        public byte[] GetIconCustomProvider(string url)
+        {
+            // Get the hostname from the requested URL
+            var hostname = GetValidHost(url);
+
+            // Custom provider settings
+            var providerURL = YetAnotherFaviconDownloaderExt.Config.GetCustomDownloadProvider();
+            var iconSize = YetAnotherFaviconDownloaderExt.Config.GetMaximumIconSize().ToString();
+
+            // Follows KeePass placeholders convention
+            // https://keepass.info/help/base/placeholders.html
+
+            // Maybe in the future we can give full/proper support, well, not today, for now it's enough
+            providerURL = Regex.Replace(providerURL, "{URL:HOST}", hostname, RegexOptions.IgnoreCase);
+            providerURL = Regex.Replace(providerURL, "{YAFD:ICON_SIZE}", iconSize, RegexOptions.IgnoreCase);
+
+            Uri address = new Uri(providerURL);
+
+            Util.Log("CustomProvider: {0} => {1}", url, providerURL);
+
+            try
+            {
+                // Download file
+                byte[] data = DownloadData(address);
+
+                // Check if the data is a valid image and then try to resize it
+                if (ResizeImage(ref data))
+                {
+                    return data;
+                }
+            }
+            catch (WebException ex)
+            {
+                HttpWebResponse response = ex.Response as HttpWebResponse;
+                if (response != null && response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new FaviconDownloaderException(FaviconDownloaderExceptionStatus.NotFound);
+                }
+                else
+                {
+                    throw new FaviconDownloaderException(ex);
+               }
+            }
+
+            // If there is no file available
+            throw new FaviconDownloaderException(FaviconDownloaderExceptionStatus.NotFound);
+        }
+
         public string GetValidHost(string url)
         {
             if (!httpSchema.IsMatch(url))

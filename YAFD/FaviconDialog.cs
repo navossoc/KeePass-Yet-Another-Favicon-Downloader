@@ -60,14 +60,17 @@ namespace YetAnotherFaviconDownloader
             pluginHost.MainWindow.UIBlockInteraction(true);
         }
 
-        public void Run(PwEntry[] entries)
+        public void Run(PwEntry[] entries, bool customProvider)
         {
             this.entries = entries;
-            bgWorker.RunWorkerAsync();
+            bgWorker.RunWorkerAsync(customProvider);
         }
 
         private void BgWorker_DoWork(object sender, DoWorkEventArgs e)
         {
+            // Custom provider download (argument)
+            bool customProvider = (bool)e.Argument;
+
             // Progress information
             ProgressInfo progress = new ProgressInfo(entries.Length);
 
@@ -119,8 +122,16 @@ namespace YetAnotherFaviconDownloader
                                 {
                                     try
                                     {
+                                        byte[] data = null;
                                         // Download favicon
-                                        byte[] data = fd.GetIcon(url);
+                                        if (customProvider)
+                                        {
+                                            data = fd.GetIconCustomProvider(url);
+                                        }
+                                        else
+                                        {
+                                            data = fd.GetIcon(url);
+                                        }
                                         Util.Log("Icon downloaded with success");
 
                                         // Hash icon data (avoid duplicates)

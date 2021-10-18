@@ -54,6 +54,14 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Provider.cs" />
+    <Compile Include="ProviderList.cs" />
+    <Compile Include="UI\DownloadProvider.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\DownloadProvider.Designer.cs">
+      <DependentUpon>DownloadProvider.cs</DependentUpon>
+    </Compile>
     <Compile Include="Util.cs" />
     <Compile Include="YetAnotherFaviconDownloaderExt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -62,6 +70,9 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\DownloadProvider.resx">
+      <DependentUpon>DownloadProvider.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

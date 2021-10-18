@@ -35,6 +35,12 @@ namespace YetAnotherFaviconDownloader
         private const string maximumIconSize = pluginName + "MaximumIconSize";
         private int? m_maximumIconSize = null;
 
+        /// <summary>
+        /// Custom download provider
+        /// </summary>
+        private const string customDownloadProvider = pluginName + "CustomDownloadProvider";
+        private string m_customDownloadProvider = null;
+
         public Configuration(AceCustomConfig aceCustomConfig)
         {
             config = aceCustomConfig;
@@ -103,6 +109,22 @@ namespace YetAnotherFaviconDownloader
         {
             m_maximumIconSize = value;
             config.SetLong(maximumIconSize, value);
+        }
+
+        public string GetCustomDownloadProvider()
+        {
+            if (string.IsNullOrEmpty(m_customDownloadProvider))
+            {
+                m_customDownloadProvider = config.GetString(customDownloadProvider, "");
+            }
+
+            return m_customDownloadProvider;
+        }
+
+        public void SetCustomDownloadProvider(string value)
+        {
+            m_customDownloadProvider = value;
+            config.SetString(customDownloadProvider, value);
         }
     }
 }
