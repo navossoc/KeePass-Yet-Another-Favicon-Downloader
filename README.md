@@ -51,6 +51,18 @@ Additional installation instructions can be found on the [wiki](https://github.c
 - Copy _YetAnotherFaviconDownloader.plgx_ into _KeePass_ plugins folder.
 - Restart _KeePass_ in order to load the plugin.
 
+Or install via [Chocolatey](https://community.chocolatey.org/packages/keepass-yet-another-favicon-downloader):
+
+```
+choco install keepass-yet-another-favicon-downloader
+```
+
+To upgrade KeePass Plugin Yet Another Favicon Downloader to the latest release version for enjoying the newest features, run the following command from the command line or from PowerShell:
+
+```
+choco upgrade keepass-yet-another-favicon-downloader
+```
+
 ## Usage
 
 This plugin adds a new menu item called **"Download Favicons"** into the entry and group context menus of _KeePass_.
