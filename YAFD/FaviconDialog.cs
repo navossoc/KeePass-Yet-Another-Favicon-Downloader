@@ -154,7 +154,7 @@ namespace YetAnotherFaviconDownloader
                                                 if (nameProperty != null)
                                                 {
                                                     // Since the URL was valid, we just force a valid scheme prefix to be able to get the Host
-                                                    var host = fd.GetValidHost(url);
+                                                    var host = fd.GetValidUri(url);
                                                     nameProperty.SetValue(icons[i], "yafd-" + host);
                                                 }
 
