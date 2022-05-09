@@ -208,7 +208,9 @@ namespace YetAnotherFaviconDownloader
         public byte[] GetIconCustomProvider(string url)
         {
             // Get the hostname from the requested URL
-            var hostname = GetValidHost(url);
+            var baseUri = GetValidUri(url);
+            string hostname = baseUri.Host;
+            string scheme = baseUri.Scheme;
 
             // Custom provider settings
             var providerURL = YetAnotherFaviconDownloaderExt.Config.GetCustomDownloadProvider();
@@ -218,6 +220,7 @@ namespace YetAnotherFaviconDownloader
             // https://keepass.info/help/base/placeholders.html
 
             // Maybe in the future we can give full/proper support, well, not today, for now it's enough
+            providerURL = Regex.Replace(providerURL, "{URL:SCM}", scheme, RegexOptions.IgnoreCase);
             providerURL = Regex.Replace(providerURL, "{URL:HOST}", hostname, RegexOptions.IgnoreCase);
             providerURL = Regex.Replace(providerURL, "{YAFD:ICON_SIZE}", iconSize, RegexOptions.IgnoreCase);
 
@@ -253,7 +256,7 @@ namespace YetAnotherFaviconDownloader
             throw new FaviconDownloaderException(FaviconDownloaderExceptionStatus.NotFound);
         }
 
-        public string GetValidHost(string url)
+        public Uri GetValidUri(string url)
         {
             if (!httpSchema.IsMatch(url))
             {
@@ -264,11 +267,11 @@ namespace YetAnotherFaviconDownloader
             Uri result;
             if (Uri.TryCreate(url, UriKind.Absolute, out result))
             {
-                return result.Host;
+                return result;
             }
 
             // we shouldn't see this case
-            return "";
+            return new Uri("about:blank");
         }
 
         protected override WebRequest GetWebRequest(Uri address)
